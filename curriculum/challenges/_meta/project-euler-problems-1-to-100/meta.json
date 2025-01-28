@@ -1,12 +1,9 @@
 {
-  "name": "project euler problems 1 to 100",
+  "name": "Project Euler Problems 1 to 100",
   "isUpcomingChange": false,
   "dashedName": "project-euler-problems-1-to-100",
   "helpCategory": "Euler",
   "order": 0,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "project-euler",
   "disableLoopProtectTests": true,
   "challengeOrder": [
@@ -410,5 +407,6 @@
       "id": "5900f3d01000cf542c50fee3",
       "title": "Problem 100: Arranged probability"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

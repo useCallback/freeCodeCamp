@@ -6,9 +6,6 @@
   "dashedName": "learn-css-grid-by-building-a-magazine",
   "helpCategory": "HTML-CSS",
   "order": 15,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "2022/responsive-web-design",
   "challengeOrder": [
     {
@@ -331,5 +328,6 @@
       "id": "6148f6f7d8914c78e93136ca",
       "title": "Step 80"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-grid"
 }

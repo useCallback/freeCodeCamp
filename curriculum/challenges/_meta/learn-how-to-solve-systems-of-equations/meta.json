@@ -4,9 +4,6 @@
   "dashedName": "learn-how-to-solve-systems-of-equations",
   "helpCategory": "Python",
   "order": 8,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "college-algebra-with-python",
   "challengeOrder": [
     {
@@ -17,5 +14,6 @@
       "id": "6331d2a9b51aeedd1a2bd654",
       "title": "Solving Systems of Equations: Extra"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

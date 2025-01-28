@@ -1,29 +1,22 @@
-// Package Utilities
-import { Modal } from '@freecodecamp/react-bootstrap';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { createSelector } from 'reselect';
-import { Button } from '@freecodecamp/ui';
+import { Button, Modal } from '@freecodecamp/ui';
 
-// Local Utilities
-import { executeGA } from '../../../redux/actions';
 import { closeModal, resetChallenge } from '../redux/actions';
 import { isResetModalOpenSelector } from '../redux/selectors';
+import callGA from '../../../analytics/call-ga';
+import { canSaveToDB } from '../../../../../shared/config/challenge-types';
 
-// Styles
-import './reset-modal.css';
-
-// Types
 interface ResetModalProps {
   close: () => void;
-  executeGA: () => void;
   isOpen: boolean;
+  challengeType: number;
   reset: () => void;
 }
 
-// Redux Setup
 const mapStateToProps = createSelector(
   isResetModalOpenSelector,
   (isOpen: boolean) => ({
@@ -35,7 +28,6 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
       close: () => closeModal('reset'),
-      executeGA,
       reset: () => resetChallenge()
     },
     dispatch
@@ -45,41 +37,41 @@ function withActions(...fns: Array<() => void>) {
   return () => fns.forEach(fn => fn());
 }
 
-// Component
-function ResetModal({ reset, close, isOpen }: ResetModalProps): JSX.Element {
+function ResetModal({
+  reset,
+  close,
+  challengeType,
+  isOpen
+}: ResetModalProps): JSX.Element {
   const { t } = useTranslation();
   if (isOpen) {
-    executeGA({ event: 'pageview', pagePath: '/reset-modal' });
+    callGA({ event: 'pageview', pagePath: '/reset-modal' });
   }
   return (
-    <Modal
-      data-playwright-test-label='reset-modal'
-      animation={false}
-      dialogClassName='reset-modal'
-      keyboard={true}
-      onHide={close}
-      show={isOpen}
-    >
-      <Modal.Header className='reset-modal-header' closeButton={true}>
-        <Modal.Title className='text-center'>{t('learn.reset')}</Modal.Title>
+    <Modal onClose={close} open={isOpen} variant='danger'>
+      <Modal.Header showCloseButton={true} closeButtonClassNames='close'>
+        {t('learn.reset')}
       </Modal.Header>
-      <Modal.Body className='reset-modal-body'>
-        <div className='text-center'>
-          <p>{t('learn.reset-warn')}</p>
-          <p>
-            <em>{t('learn.reset-warn-2')}</em>.
-          </p>
-        </div>
+      <Modal.Body alignment='center'>
+        <p>
+          {canSaveToDB(challengeType)
+            ? t('learn.revert-warn')
+            : t('learn.reset-warn')}
+        </p>
+        <p>
+          <em>{t('learn.reset-warn-2')}</em>
+        </p>
       </Modal.Body>
-      <Modal.Footer className='reset-modal-footer'>
+      <Modal.Footer>
         <Button
-          data-cy='reset-modal-confirm'
           block={true}
           size='large'
           variant='danger'
           onClick={withActions(reset, close)}
         >
-          {t('buttons.reset-lesson')}
+          {canSaveToDB(challengeType)
+            ? t('buttons.revert-to-saved-code')
+            : t('buttons.reset-lesson')}
         </Button>
       </Modal.Footer>
     </Modal>

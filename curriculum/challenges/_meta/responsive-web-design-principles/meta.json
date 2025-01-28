@@ -4,9 +4,6 @@
   "dashedName": "responsive-web-design-principles",
   "helpCategory": "HTML-CSS",
   "order": 4,
-  "time": "1 hour",
-  "template": "",
-  "required": [],
   "superBlock": "responsive-web-design",
   "challengeOrder": [
     {
@@ -25,5 +22,6 @@
       "id": "587d78b1367417b2b2512b0c",
       "title": "Make Typography Responsive"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

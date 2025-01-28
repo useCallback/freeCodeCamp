@@ -4,9 +4,6 @@
   "dashedName": "write-your-first-code-using-c-sharp",
   "helpCategory": "C-Sharp",
   "order": 0,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "foundational-c-sharp-with-microsoft",
   "challengeOrder": [
     {
@@ -37,5 +34,6 @@
       "id": "647f85d407d29547b3bee1bb",
       "title": "Trophy - Write Your First Code Using C#"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

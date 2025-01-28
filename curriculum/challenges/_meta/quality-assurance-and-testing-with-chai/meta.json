@@ -4,9 +4,6 @@
   "dashedName": "quality-assurance-and-testing-with-chai",
   "helpCategory": "JavaScript",
   "order": 0,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "quality-assurance",
   "challengeOrder": [
     {
@@ -109,5 +106,6 @@
       "id": "5f8884f4c46685731aabfc41",
       "title": "Run Functional Tests Using a Headless Browser II"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

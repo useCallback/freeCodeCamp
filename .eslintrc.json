@@ -69,11 +69,7 @@
           "./tsconfig.json",
           "./api/tsconfig.json",
           "./shared/tsconfig.json",
-          "./tools/ui-components/tsconfig.json",
           "./tools/client-plugins/browser-scripts/tsconfig.json",
-          "./web/tsconfig.json",
-          "./curriculum-server/tsconfig.json",
-          "./cypress/tsconfig.json",
           "./e2e/tsconfig.json"
         ]
       },
@@ -90,22 +86,12 @@
       }
     },
     {
-      "files": [
-        "./tools/ui-components/**/*.test.[jt]s?(x)",
-        "./client/**/*.test.[jt]s?(x)"
-      ],
+      "files": ["./client/**/*.test.[jt]s?(x)"],
       "extends": [
         "plugin:testing-library/react",
         "plugin:jest-dom/recommended"
       ],
       "rules": { "import/named": 2 }
-    },
-    {
-      "files": ["cypress/**/*.js"],
-      "globals": {
-        "cy": true,
-        "Cypress": true
-      }
     },
     {
       "files": ["e2e/*.ts"],
@@ -114,10 +100,6 @@
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-assignment": "off"
       }
-    },
-    {
-      "files": ["web/**/*.tsx"],
-      "extends": ["plugin:react/jsx-runtime"]
     },
     {
       "files": ["**/api-server/**/*", "**/404.*"],

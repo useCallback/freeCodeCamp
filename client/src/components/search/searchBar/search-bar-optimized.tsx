@@ -9,7 +9,12 @@ const SearchBarOptimized = ({
   innerRef
 }: Pick<SearchBarProps, 'innerRef'>): JSX.Element => {
   const { t } = useTranslation();
-  const placeholder = t('search.placeholder');
+  // TODO: Refactor this fallback when all translation files are synced
+  const searchPlaceholder = t('search-bar:placeholder').startsWith(
+    'search.placeholder.'
+  )
+    ? t('search.placeholder')
+    : t('search-bar:placeholder');
   const searchUrl = searchPageUrl;
   const [value, setValue] = useState('');
   const inputElementRef = useRef<HTMLInputElement>(null);
@@ -32,11 +37,10 @@ const SearchBarOptimized = ({
   return (
     <div className='fcc_searchBar' data-testid='fcc_searchBar' ref={innerRef}>
       <div className='fcc_search_wrapper'>
-        <div className='ais-SearchBox' data-cy='ais-SearchBox'>
+        <div className='ais-SearchBox'>
           <form
             action=''
             className='ais-SearchBox-form'
-            data-cy='ais-SearchBox-form'
             onSubmit={onSubmit}
             role='search'
           >
@@ -51,17 +55,13 @@ const SearchBarOptimized = ({
               className='ais-SearchBox-input'
               maxLength={512}
               onChange={onChange}
-              placeholder={placeholder}
+              placeholder={searchPlaceholder}
               spellCheck='false'
               type='search'
               value={value}
               ref={inputElementRef}
             />
-            <button
-              className='ais-SearchBox-submit'
-              type='submit'
-              data-playwright-test-label='fcc-search-button'
-            >
+            <button className='ais-SearchBox-submit' type='submit'>
               <Magnifier />
             </button>
             {value && (
@@ -69,7 +69,6 @@ const SearchBarOptimized = ({
                 className='ais-SearchBox-reset'
                 onClick={onClick}
                 type='button'
-                data-playwright-test-label='fcc-search-clear'
               >
                 <InputReset />
               </button>

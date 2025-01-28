@@ -22,12 +22,7 @@ const examFilenames = [
   'example-certification-exam.yml'
 ];
 
-const client = new MongoClient(MONGOHQ_URL, { useUnifiedTopology: true });
-
-log('Connected successfully to mongo');
-
-const db = client.db('freecodecamp');
-const exams = db.collection('Exam');
+const client = new MongoClient(MONGOHQ_URL);
 
 function handleError(err, client) {
   if (err) {
@@ -45,6 +40,11 @@ function handleError(err, client) {
 }
 
 const seed = async () => {
+  await client.db('admin').command({ ping: 1 });
+  log('Connected successfully to mongo');
+
+  const db = client.db('freecodecamp');
+  const exams = db.collection('Exam');
   for (const filename of examFilenames) {
     try {
       const examPath = join(__dirname, 'exams', filename);

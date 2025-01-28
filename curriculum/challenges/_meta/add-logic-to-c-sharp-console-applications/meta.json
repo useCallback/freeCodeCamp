@@ -4,9 +4,6 @@
   "dashedName": "add-logic-to-c-sharp-console-applications",
   "helpCategory": "C-Sharp",
   "order": 2,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "foundational-c-sharp-with-microsoft",
   "challengeOrder": [
     {
@@ -41,5 +38,6 @@
       "id": "647f882207d29547b3bee1c0",
       "title": "Trophy - Add Logic to C# Console Applications"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

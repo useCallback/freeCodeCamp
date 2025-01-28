@@ -6,9 +6,6 @@
   "dashedName": "learn-css-transforms-by-building-a-penguin",
   "helpCategory": "HTML-CSS",
   "order": 18,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "2022/responsive-web-design",
   "challengeOrder": [
     {
@@ -427,5 +424,6 @@
       "id": "619d3711d04d623000013e9e",
       "title": "Step 104"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-grid"
 }

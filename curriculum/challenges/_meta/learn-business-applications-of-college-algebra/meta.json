@@ -4,9 +4,6 @@
   "dashedName": "learn-business-applications-of-college-algebra",
   "helpCategory": "Python",
   "order": 14,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "college-algebra-with-python",
   "challengeOrder": [
     {
@@ -17,5 +14,6 @@
       "id": "63dbd0375d93712ff177d969",
       "title": "Business Applications of College Algebra: Extra"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

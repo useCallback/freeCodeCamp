@@ -4,9 +4,6 @@
   "dashedName": "basic-data-structures",
   "helpCategory": "JavaScript",
   "order": 4,
-  "time": "1 hour",
-  "template": "",
-  "required": [],
   "superBlock": "javascript-algorithms-and-data-structures",
   "challengeOrder": [
     {
@@ -89,5 +86,6 @@
       "id": "587d7b7d367417b2b2512b1f",
       "title": "Modify an Array Stored in an Object"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

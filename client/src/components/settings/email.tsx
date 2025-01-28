@@ -5,9 +5,9 @@ import {
   FormGroupProps,
   FormControl,
   ControlLabel,
-  Button
+  Button,
+  Spacer
 } from '@freecodecamp/ui';
-import { Link } from 'gatsby';
 import React, { useState } from 'react';
 import type { TFunction } from 'i18next';
 import { Trans, withTranslation } from 'react-i18next';
@@ -21,7 +21,7 @@ import { maybeEmailRE } from '../../utils';
 
 import BlockSaveButton from '../helpers/form/block-save-button';
 import FullWidthRow from '../helpers/full-width-row';
-import Spacer from '../helpers/spacer';
+import Link from '../helpers/link';
 import SectionHeader from './section-header';
 import ToggleButtonSetting from './toggle-button-setting';
 
@@ -164,9 +164,7 @@ function EmailSettings({
   }
   return (
     <div className='email-settings'>
-      <SectionHeader dataPlaywrightTestLabel='email-settings-header'>
-        {t('settings.email.heading')}
-      </SectionHeader>
+      <SectionHeader>{t('settings.email.heading')}</SectionHeader>
       {isEmailVerified ? null : (
         <FullWidthRow>
           <HelpBlock>
@@ -190,16 +188,13 @@ function EmailSettings({
       <FullWidthRow>
         <form
           id='form-update-email'
-          data-cy='form-update-email'
           {...(!isDisabled
             ? { onSubmit: handleSubmit }
             : { onSubmit: e => e.preventDefault() })}
         >
           <FormGroup controlId='current-email'>
             <ControlLabel>{t('settings.email.current')}</ControlLabel>
-            <FormControl.Static data-playwright-test-label='current-email'>
-              {currentEmail}
-            </FormControl.Static>
+            <FormControl.Static>{currentEmail}</FormControl.Static>
           </FormGroup>
           <div role='group' aria-label={t('settings.email.heading')}>
             <FormGroup
@@ -210,15 +205,13 @@ function EmailSettings({
                 {t('settings.email.new')}
               </ControlLabel>
               <FormControl
-                data-cy='email-input'
-                data-playwright-test-label='new-email-input'
                 onChange={createHandleEmailFormChange('newEmail')}
                 type='email'
                 value={newEmail}
                 id='new-email-input'
               />
               {newEmailValidationMessage ? (
-                <HelpBlock data-cy='validation-message'>
+                <HelpBlock data-playwright-test-label='new-email-validation'>
                   {newEmailValidationMessage}
                 </HelpBlock>
               ) : null}
@@ -231,22 +224,19 @@ function EmailSettings({
                 {t('settings.email.confirm')}
               </ControlLabel>
               <FormControl
-                data-cy='confirm-email'
-                data-playwright-test-label='confirm-email-input'
                 onChange={createHandleEmailFormChange('confirmNewEmail')}
                 type='email'
                 value={confirmNewEmail}
                 id='confirm-email-input'
               />
               {confirmEmailValidationMessage ? (
-                <HelpBlock data-cy='validation-message'>
+                <HelpBlock data-playwright-test-label='confirm-email-validation'>
                   {confirmEmailValidationMessage}
                 </HelpBlock>
               ) : null}
             </FormGroup>
           </div>
           <BlockSaveButton
-            data-playwright-test-label='save-email-button'
             disabled={isDisabled}
             bgSize='large'
             {...(isDisabled && { tabIndex: -1 })}
@@ -256,16 +246,14 @@ function EmailSettings({
           </BlockSaveButton>
         </form>
       </FullWidthRow>
-      <Spacer size='medium' />
+      <Spacer size='m' />
       <FullWidthRow>
         <ToggleButtonSetting
           action={t('settings.email.weekly')}
           flag={sendQuincyEmail}
           flagName='sendQuincyEmail'
           offLabel={t('buttons.no-thanks')}
-          dataPlaywrightTestOffLabel='no-thanks-button'
           onLabel={t('buttons.yes-please')}
-          dataPlaywrightTestOnLabel='yes-please-button'
           toggleFlag={() => updateQuincyEmail(!sendQuincyEmail)}
         />
       </FullWidthRow>

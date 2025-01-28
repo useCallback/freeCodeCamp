@@ -1,12 +1,9 @@
 {
-  "name": "project euler problems 201 to 300",
+  "name": "Project Euler Problems 201 to 300",
   "isUpcomingChange": false,
   "dashedName": "project-euler-problems-201-to-300",
   "helpCategory": "Euler",
   "order": 2,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "project-euler",
   "disableLoopProtectTests": true,
   "challengeOrder": [
@@ -410,5 +407,6 @@
       "id": "5900f49a1000cf542c50ffac",
       "title": "Problem 300: Protein folding"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

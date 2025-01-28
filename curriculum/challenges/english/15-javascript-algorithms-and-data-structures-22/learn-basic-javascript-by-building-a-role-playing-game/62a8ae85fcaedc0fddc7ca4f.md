@@ -1,8 +1,8 @@
 ---
 id: 62a8ae85fcaedc0fddc7ca4f
-title: Step 58
+title: Step 59
 challengeType: 0
-dashedName: step-58
+dashedName: step-59
 ---
 
 # --description--
@@ -37,7 +37,7 @@ Your second `locations` object should have a `button text` property which is an 
 assert.isArray(locations[1]["button text"]);
 ```
 
-Your `button text` property should have the string values `Buy 10 health (10 gold)`, `Buy weapon (30 gold)`, and `Go to town square`.
+Your `button text` property should have the string values `"Buy 10 health (10 gold)"`, `"Buy weapon (30 gold)"`, and `"Go to town square"`.
 
 ```js
 assert.equal(locations[1]["button text"][0], "Buy 10 health (10 gold)");
@@ -65,7 +65,7 @@ Your second `locations` object should have a `text` property which is a string.
 assert.isString(locations[1].text);
 ```
 
-Your second `locations` object should have a `text` property with the value of `You enter the store.`.
+Your second `locations` object should have a `text` property with the value of `"You enter the store."`.
 
 ```js
 assert.equal(locations[1].text, "You enter the store.");
@@ -171,7 +171,7 @@ button {
 let xp = 0;
 let health = 100;
 let gold = 50;
-let currentWeapon = 0;
+let currentWeaponIndex = 0;
 let fighting;
 let monsterHealth;
 let inventory = ["stick"];

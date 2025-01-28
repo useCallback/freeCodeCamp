@@ -2,34 +2,22 @@ import { test, expect } from '@playwright/test';
 import translations from '../client/i18n/locales/english/translations.json';
 import intro from '../client/i18n/locales/english/intro.json';
 
-import {
-  SuperBlockStages,
-  superBlockOrder
-} from '../shared/config/superblocks';
+import { SuperBlockStage, superBlockStages } from '../shared/config/curriculum';
+import { superBlocksWithoutLastWord } from '../client/src/utils/superblock-map-titles';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/learn');
 });
 
 const superBlocksWithLinks = [
-  ...superBlockOrder[SuperBlockStages.FrontEnd],
-  ...superBlockOrder[SuperBlockStages.Backend],
-  ...superBlockOrder[SuperBlockStages.Python],
-  ...superBlockOrder[SuperBlockStages.English],
-  ...superBlockOrder[SuperBlockStages.Professional],
-  ...superBlockOrder[SuperBlockStages.Extra],
-  ...superBlockOrder[SuperBlockStages.Legacy]
+  ...superBlockStages[SuperBlockStage.Core],
+  ...superBlockStages[SuperBlockStage.Next],
+  ...superBlockStages[SuperBlockStage.English],
+  ...superBlockStages[SuperBlockStage.NextEnglish],
+  ...superBlockStages[SuperBlockStage.Professional],
+  ...superBlockStages[SuperBlockStage.Extra],
+  ...superBlockStages[SuperBlockStage.Legacy]
 ];
-
-const superBlockTitleOverride: Record<string, string> = {
-  'Responsive Web Design': 'Legacy Responsive Web Design Challenges',
-  'JavaScript Algorithms and Data Structures':
-    'JavaScript Algorithms and Data Structures Certification'
-};
-
-const superBlockSlugOverride: Record<string, string> = {
-  '2022/responsive-web-design': 'responsive-web-design'
-};
 
 test.describe('Map Component', () => {
   test('should render correctly', async ({ page }) => {
@@ -44,20 +32,26 @@ test.describe('Map Component', () => {
     ).toBeVisible();
     const curriculumBtns = page.getByTestId('curriculum-map-button');
     await expect(curriculumBtns).toHaveCount(superBlocksWithLinks.length);
+
     for (let i = 0; i < superBlocksWithLinks.length; i++) {
-      const superblockLink = page.getByRole('link', {
-        // This is a hacky bypass because `Responsive Web Design` hits both links.
-        name:
-          superBlockTitleOverride[intro[superBlocksWithLinks[i]].title] ??
-          intro[superBlocksWithLinks[i]].title
-      });
-      expect(await superblockLink.getAttribute('href')).toBe(
-        `/learn/${
-          superBlockSlugOverride[superBlocksWithLinks[i]] ??
-          superBlocksWithLinks[i]
-        }/`
+      const addLastWord = !Object.values(superBlocksWithoutLastWord).includes(
+        superBlocksWithLinks[i]
       );
-      await superblockLink.click();
+
+      const name = addLastWord
+        ? `${intro[superBlocksWithLinks[i]].title} Certification`
+        : intro[superBlocksWithLinks[i]].title;
+
+      const superblockLink = page.getByRole('link', {
+        exact: true,
+        name
+      });
+
+      await expect(superblockLink).toBeVisible();
+      await expect(superblockLink).toHaveAttribute(
+        'href',
+        `/learn/${superBlocksWithLinks[i]}/`
+      );
     }
   });
 });
