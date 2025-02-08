@@ -8,8 +8,6 @@ export const tryToShowDonationModal = createAction(
   actionTypes.tryToShowDonationModal
 );
 
-export const executeGA = createAction(actionTypes.executeGA);
-
 export const allowBlockDonationRequests = createAction(
   actionTypes.allowBlockDonationRequests
 );
@@ -19,11 +17,8 @@ export const openDonationModal = createAction(actionTypes.openDonationModal);
 export const preventBlockDonationRequests = createAction(
   actionTypes.preventBlockDonationRequests
 );
-export const setCompletionCountWhenShownProgressModal = createAction(
-  actionTypes.setCompletionCountWhenShownProgressModal
-);
-export const setShowMultipleProgressModals = createAction(
-  actionTypes.setShowMultipleProgressModals
+export const setIsRandomCompletionThreshold = createAction(
+  actionTypes.setIsRandomCompletionThreshold
 );
 export const updateDonationFormState = createAction(
   actionTypes.updateDonationFormState
@@ -56,6 +51,10 @@ export const acceptTermsError = createAction(actionTypes.acceptTermsError);
 export const fetchUser = createAction(actionTypes.fetchUser);
 export const fetchUserComplete = createAction(actionTypes.fetchUserComplete);
 export const fetchUserError = createAction(actionTypes.fetchUserError);
+
+export const toggleTheme = createAction(actionTypes.toggleTheme);
+export const setTheme = createAction(actionTypes.setTheme);
+export const initializeTheme = createAction(actionTypes.initializeTheme);
 
 export const updateAllChallengesInfo = createAction(
   actionTypes.updateAllChallengesInfo
@@ -100,10 +99,6 @@ export const deleteUserToken = createAction(actionTypes.deleteUserToken);
 export const deleteUserTokenComplete = createAction(
   actionTypes.deleteUserTokenComplete
 );
-
-export const hideCodeAlly = createAction(actionTypes.hideCodeAlly);
-export const showCodeAlly = createAction(actionTypes.showCodeAlly);
-export const tryToShowCodeAlly = createAction(actionTypes.tryToShowCodeAlly);
 
 export const startExam = createAction(actionTypes.startExam);
 export const stopExam = createAction(actionTypes.stopExam);

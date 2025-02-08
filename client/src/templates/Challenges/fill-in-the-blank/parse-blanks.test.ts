@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { parseBlanks } from './parse-blanks';
 
 describe('parseBlanks', () => {
@@ -16,7 +15,7 @@ describe('parseBlanks', () => {
   });
 
   it('handles strings with blanks', () => {
-    expect(parseBlanks('<p>hello _!</p>')).toEqual([
+    expect(parseBlanks('<p>hello BLANK!</p>')).toEqual([
       [
         { type: 'text', value: 'hello ' },
         { type: 'blank', value: 0 },
@@ -24,7 +23,7 @@ describe('parseBlanks', () => {
       ]
     ]);
 
-    expect(parseBlanks('<p>hello _! Nice _ to meet you.</p>')).toEqual([
+    expect(parseBlanks('<p>hello BLANK! Nice BLANK to meet you.</p>')).toEqual([
       [
         { type: 'text', value: 'hello ' },
         { type: 'blank', value: 0 },
@@ -36,7 +35,7 @@ describe('parseBlanks', () => {
   });
 
   it('handles paragraphs with a leading blank', () => {
-    expect(parseBlanks('<p>_ hello</p>')).toEqual([
+    expect(parseBlanks('<p>BLANK hello</p>')).toEqual([
       [
         { type: 'blank', value: 0 },
         { type: 'text', value: ' hello' }
@@ -45,7 +44,7 @@ describe('parseBlanks', () => {
   });
 
   it('removes trailing empty strings', () => {
-    expect(parseBlanks('<p>hello _</p>')).toEqual([
+    expect(parseBlanks('<p>hello BLANK</p>')).toEqual([
       [
         { type: 'text', value: 'hello ' },
         { type: 'blank', value: 0 }
@@ -54,7 +53,7 @@ describe('parseBlanks', () => {
   });
 
   it('handles strings with blanks and multiple paragraphs', () => {
-    expect(parseBlanks(`<p>hello _!</p><p>dlrow _</p>`)).toEqual([
+    expect(parseBlanks(`<p>hello BLANK!</p><p>dlrow BLANK</p>`)).toEqual([
       [
         { type: 'text', value: 'hello ' },
         { type: 'blank', value: 0 },
@@ -69,9 +68,9 @@ describe('parseBlanks', () => {
 
   it('ignores newlines between paragraphs', () => {
     expect(
-      parseBlanks(`<p>hello _!</p>
+      parseBlanks(`<p>hello BLANK!</p>
 
-<p>dlrow _</p>`)
+<p>dlrow BLANK</p>`)
     ).toEqual([
       [
         { type: 'text', value: 'hello ' },
@@ -87,7 +86,7 @@ describe('parseBlanks', () => {
 
   it('ignores whitespace surrounding the input', () => {
     expect(
-      parseBlanks(` <p>hello _!</p>
+      parseBlanks(` <p>hello BLANK!</p>
     `)
     ).toEqual([
       [
@@ -100,7 +99,9 @@ describe('parseBlanks', () => {
 
   it('counts blanks across multiple paragraphs', () => {
     expect(
-      parseBlanks(`<p>hello _!</p><p>dlrow _ _</p><p> even _ more _</p>`)
+      parseBlanks(
+        `<p>hello BLANK!</p><p>dlrow BLANK BLANK</p><p> even BLANK more BLANK</p>`
+      )
     ).toEqual([
       [
         { type: 'text', value: 'hello ' },
@@ -123,8 +124,8 @@ describe('parseBlanks', () => {
   });
 
   it('throws if the string is not wrapped in p tags', () => {
-    expect(() => parseBlanks('hello _!')).toThrow();
-    expect(() => parseBlanks('<p>hello _!</p>hello _!')).toThrow();
-    expect(() => parseBlanks('hello _!<p>hello</p>')).toThrow();
+    expect(() => parseBlanks('hello BLANK!')).toThrow();
+    expect(() => parseBlanks('<p>hello BLANK!</p>hello BLANK!')).toThrow();
+    expect(() => parseBlanks('hello BLANK!<p>hello</p>')).toThrow();
   });
 });

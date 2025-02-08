@@ -12,13 +12,26 @@ describe('getSetAccessToken', () => {
   const invalidJWTSecret = 'This is not correct secret';
   const now = new Date(Date.now());
   const theBeginningOfTime = new Date(0);
-  const domain = process.env.COOKIE_DOMAIN || 'localhost';
+  const domain = 'www.example.com';
   const accessToken = {
     id: '123abc',
     userId: '456def',
     ttl: 60000,
     created: now
   };
+
+  // https://stackoverflow.com/questions/48033841/test-process-env-with-jest
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules(); // process is implicitly cached by Jest, so hence the reset
+    process.env = { ...OLD_ENV }; // Shallow clone that we can modify
+    process.env.COOKIE_DOMAIN = domain;
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
 
   describe('getAccessTokenFromRequest', () => {
     it('return `no token` error if no token is found', () => {
@@ -30,7 +43,7 @@ describe('getSetAccessToken', () => {
     describe('cookies', () => {
       it('returns `invalid token` error for malformed tokens', () => {
         const invalidJWT = jwt.sign({ accessToken }, invalidJWTSecret);
-        // eslint-disable-next-line camelcase
+
         const req = mockReq({ cookie: { jwt_access_token: invalidJWT } });
         const result = getAccessTokenFromRequest(req, validJWTSecret);
 
@@ -42,7 +55,7 @@ describe('getSetAccessToken', () => {
           { accessToken: { ...accessToken, created: theBeginningOfTime } },
           validJWTSecret
         );
-        // eslint-disable-next-line camelcase
+
         const req = mockReq({ cookie: { jwt_access_token: invalidJWT } });
         const result = getAccessTokenFromRequest(req, validJWTSecret);
 
@@ -52,7 +65,7 @@ describe('getSetAccessToken', () => {
       it('returns a valid access token with no errors ', () => {
         expect.assertions(2);
         const validJWT = jwt.sign({ accessToken }, validJWTSecret);
-        // eslint-disable-next-line camelcase
+
         const req = mockReq({ cookie: { jwt_access_token: validJWT } });
         const result = getAccessTokenFromRequest(req, validJWTSecret);
 
@@ -88,7 +101,6 @@ describe('getSetAccessToken', () => {
   });
 
   describe('removeCookies', () => {
-    // eslint-disable-next-line max-len
     it('removes four cookies set in the lifetime of an authenticated session', () => {
       // expect.assertions(4);
       const req = mockReq();

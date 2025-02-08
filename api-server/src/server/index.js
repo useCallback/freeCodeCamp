@@ -11,6 +11,7 @@ const morgan = require('morgan');
 
 const { sentry } = require('../../config/secrets');
 const { setupPassport } = require('./component-passport');
+const { getRedirectParams } = require('./utils/redirection.js');
 
 const log = createDebugger('fcc:server');
 const reqLogFormat = ':date[iso] :status :method :response-time ms - :url';
@@ -76,11 +77,18 @@ app.start = _.once(function () {
       log('DB connection closed');
       // exit process
       // this may close kept alive sockets
-      // eslint-disable-next-line no-process-exit
       process.exit(0);
     });
   });
 });
+
+if (process.env.FREECODECAMP_NODE_ENV === 'development') {
+  app.get('/', (req, res) => {
+    log('Mounting dev root redirect...');
+    const { origin } = getRedirectParams(req);
+    res.redirect(origin);
+  });
+}
 
 if (sentry.dsn === 'dsn_from_sentry_dashboard') {
   log('Sentry reporting disabled unless DSN is provided.');

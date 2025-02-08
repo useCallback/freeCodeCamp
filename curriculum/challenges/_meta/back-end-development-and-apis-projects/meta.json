@@ -4,7 +4,6 @@
   "dashedName": "back-end-development-and-apis-projects",
   "helpCategory": "JavaScript",
   "order": 3,
-  "time": "150 hours",
   "superBlock": "back-end-development-and-apis",
   "challengeOrder": [
     {
@@ -27,5 +26,6 @@
       "id": "bd7158d8c443edefaeb5bd0f",
       "title": "File Metadata Microservice"
     }
-  ]
+  ],
+  "blockLayout": "project-list"
 }

@@ -1,22 +1,22 @@
 import { WindowLocation } from '@reach/router';
 import { graphql } from 'gatsby';
-import { uniq } from 'lodash-es';
-import React, { Fragment, useEffect, memo } from 'react';
+import { uniq, isEmpty, last } from 'lodash-es';
+import React, { useEffect, memo, useMemo } from 'react';
 import Helmet from 'react-helmet';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { configureAnchors } from 'react-scrollable-anchor';
 import { bindActionCreators, Dispatch } from 'redux';
 import { createSelector } from 'reselect';
-import { Container, Col, Row } from '@freecodecamp/ui';
+import { Container, Col, Row, Spacer } from '@freecodecamp/ui';
 
-import { SuperBlocks } from '../../../../shared/config/superblocks';
+import { SuperBlocks } from '../../../../shared/config/curriculum';
 import { getSuperBlockTitleForMap } from '../../utils/superblock-map-titles';
 import DonateModal from '../../components/Donation/donation-modal';
 import Login from '../../components/Header/components/login';
 import Map from '../../components/Map';
-import { Spacer } from '../../components/helpers';
-import { tryToShowDonationModal, executeGA } from '../../redux/actions';
+import callGA from '../../analytics/call-ga';
+import { tryToShowDonationModal } from '../../redux/actions';
 import {
   isSignedInSelector,
   userSelector,
@@ -24,12 +24,16 @@ import {
   userFetchStateSelector,
   signInLoadingSelector
 } from '../../redux/selectors';
-import { MarkdownRemark, AllChallengeNode, User } from '../../redux/prop-types';
-import { defaultDonation } from '../../../../shared/config/donation-settings';
+import type { User } from '../../redux/prop-types';
+import { CertTitle, liveCerts } from '../../../config/cert-and-project-map';
+import { superBlockToCertMap } from '../../../../shared/config/certification-settings';
+import { BlockLayouts, BlockTypes } from '../../../../shared/config/blocks';
 import Block from './components/block';
 import CertChallenge from './components/cert-challenge';
 import LegacyLinks from './components/legacy-links';
+import HelpTranslate from './components/help-translate';
 import SuperBlockIntro from './components/super-block-intro';
+import { SuperBlockAccordion } from './components/super-block-accordion';
 import { resetExpansion, toggleBlock } from './redux';
 
 import './intro.css';
@@ -40,11 +44,27 @@ type FetchState = {
   errored: boolean;
 };
 
-type SuperBlockProp = {
+type ChallengeNode = {
+  challenge: {
+    fields: { slug: string; blockName: string };
+    id: string;
+    block: string;
+    blockType: BlockTypes;
+    challengeType: number;
+    title: string;
+    order: number;
+    superBlock: SuperBlocks;
+    dashedName: string;
+    blockLayout: BlockLayouts;
+    chapter: string;
+    module: string;
+  };
+};
+
+type SuperBlockProps = {
   currentChallengeId: string;
   data: {
-    markdownRemark: MarkdownRemark;
-    allChallengeNode: AllChallengeNode;
+    allChallengeNode: { nodes: ChallengeNode[] };
   };
   expandedState: {
     [key: string]: boolean;
@@ -53,11 +73,15 @@ type SuperBlockProp = {
   isSignedIn: boolean;
   signInLoading: boolean;
   location: WindowLocation<{ breadcrumbBlockClick: string }>;
+  pageContext: {
+    superBlock: SuperBlocks;
+    title: CertTitle;
+    certification: string;
+  };
   resetExpansion: () => void;
   toggleBlock: (arg0: string) => void;
   tryToShowDonationModal: () => void;
   user: User;
-  executeGA: (payload: Record<string, unknown>) => void;
 };
 
 configureAnchors({ offset: -40, scrollDuration: 0 });
@@ -88,7 +112,6 @@ const mapStateToProps = (state: Record<string, unknown>) => {
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      executeGA,
       tryToShowDonationModal,
       resetExpansion,
       toggleBlock: b => toggleBlock(b)
@@ -96,7 +119,7 @@ const mapDispatchToProps = (dispatch: Dispatch) =>
     dispatch
   );
 
-const SuperBlockIntroductionPage = (props: SuperBlockProp) => {
+const SuperBlockIntroductionPage = (props: SuperBlockProps) => {
   const { t } = useTranslation();
   useEffect(() => {
     initializeExpandedState();
@@ -112,16 +135,46 @@ const SuperBlockIntroductionPage = (props: SuperBlockProp) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getChosenBlock = (): string => {
-    const {
-      data: {
-        allChallengeNode: { edges }
-      },
-      isSignedIn,
-      currentChallengeId,
-      location
-    }: SuperBlockProp = props;
+  const {
+    data: {
+      allChallengeNode: { nodes }
+    },
+    isSignedIn,
+    currentChallengeId,
+    signInLoading,
+    user,
+    pageContext: { superBlock, title, certification },
+    location,
+    user: { completedChallenges: allCompletedChallenges }
+  } = props;
 
+  const allChallenges = useMemo(
+    () => nodes.map(({ challenge }) => challenge),
+    [nodes]
+  );
+  const superBlockChallenges = useMemo(
+    () => allChallenges.filter(c => c.superBlock === superBlock),
+    [allChallenges, superBlock]
+  );
+  const blocks = uniq(superBlockChallenges.map(({ block }) => block));
+
+  const completedChallenges = useMemo(
+    () =>
+      allCompletedChallenges.filter(completedChallenge =>
+        superBlockChallenges.some(c => c.id === completedChallenge.id)
+      ),
+    [superBlockChallenges, allCompletedChallenges]
+  );
+
+  const i18nTitle = getSuperBlockTitleForMap(superBlock);
+
+  const showCertification = liveCerts.some(
+    cert => superBlockToCertMap[superBlock] === cert.certSlug
+  );
+
+  const superBlockWithAccordionView = [SuperBlocks.FullStackDeveloper];
+
+  const getChosenBlock = (): string => {
     // if coming from breadcrumb click
     if (
       location.state &&
@@ -140,20 +193,29 @@ const SuperBlockIntroductionPage = (props: SuperBlockProp) => {
       return dashedBlock;
     }
 
-    const edge = edges[0];
-
     if (isSignedIn) {
       // see if currentChallenge is in this superBlock
-      const currentChallengeEdge = edges.find(
-        edge => edge.node.challenge.id === currentChallengeId
+      const currentChallenge = superBlockChallenges.find(
+        challenge => challenge.id === currentChallengeId
       );
 
-      return currentChallengeEdge
-        ? currentChallengeEdge.node.challenge.block
-        : edge.node.challenge.block;
+      if (currentChallenge) return currentChallenge.block;
+
+      // If the current challenge isn't in the super block
+      // Find the most recently completed challenge of the super block,
+      // which is the last item of the `completedChallenges` array.
+      if (!isEmpty(completedChallenges)) {
+        const lastCompletedChallengeId = last(completedChallenges)?.id;
+
+        const lastCompletedChallenge = allChallenges.find(
+          ({ id }) => id === lastCompletedChallengeId
+        );
+
+        if (lastCompletedChallenge) return lastCompletedChallenge.block;
+      }
     }
 
-    return edge.node.challenge.block;
+    return blocks[0];
   };
 
   const initializeExpandedState = () => {
@@ -163,42 +225,12 @@ const SuperBlockIntroductionPage = (props: SuperBlockProp) => {
     return toggleBlock(getChosenBlock());
   };
 
-  const {
-    data: {
-      markdownRemark: {
-        frontmatter: { superBlock, title, certification }
-      },
-      allChallengeNode: { edges }
-    },
-    isSignedIn,
-    signInLoading,
-    user
-  } = props;
-
-  const nodesForSuperBlock = edges.map(({ node }) => node);
-  const blockDashedNames = uniq(
-    nodesForSuperBlock.map(({ challenge: { block } }) => block)
-  );
-
-  const i18nTitle = getSuperBlockTitleForMap(superBlock);
-  const defaultCurriculumNames = blockDashedNames;
-
-  const superblockWithoutCert = [
-    SuperBlocks.RespWebDesign,
-    SuperBlocks.CodingInterviewPrep,
-    SuperBlocks.TheOdinProject,
-    SuperBlocks.ProjectEuler,
-    SuperBlocks.A2English,
-    SuperBlocks.RosettaCode,
-    SuperBlocks.PythonForEverybody
-  ];
+  const chosenBlock = getChosenBlock();
 
   const onCertificationDonationAlertClick = () => {
-    props.executeGA({
+    callGA({
       event: 'donation_related',
-      action: `Certification Donation Alert Click`,
-      duration: defaultDonation.donationDuration,
-      amount: defaultDonation.donationAmount
+      action: `Certification Donation Alert Click`
     });
   };
 
@@ -211,7 +243,7 @@ const SuperBlockIntroductionPage = (props: SuperBlockProp) => {
         <main>
           <Row className='super-block-intro-page'>
             <Col md={8} mdOffset={2} sm={10} smOffset={1} xs={12}>
-              <Spacer size='large' />
+              <Spacer size='l' />
               <LegacyLinks superBlock={superBlock} />
               <SuperBlockIntro
                 superBlock={superBlock}
@@ -220,47 +252,63 @@ const SuperBlockIntroductionPage = (props: SuperBlockProp) => {
                 }
                 isDonating={user.isDonating}
               />
-              <Spacer size='large' />
+              <HelpTranslate superBlock={superBlock} />
+              <Spacer size='l' />
               <h2 className='text-center big-subheading'>
                 {t(`intro:misc-text.courses`)}
               </h2>
-              <Spacer size='medium' />
-              <div className='block-ui'>
-                {defaultCurriculumNames.map(blockDashedName => (
-                  <Block
-                    key={blockDashedName}
-                    blockDashedName={blockDashedName}
-                    challenges={nodesForSuperBlock.filter(
-                      node => node.challenge.block === blockDashedName
-                    )}
-                    superBlock={superBlock}
-                  />
-                ))}
-                {!superblockWithoutCert.includes(superBlock) && (
-                  <CertChallenge
-                    certification={certification}
-                    superBlock={superBlock}
-                    title={title}
-                    user={user}
-                  />
-                )}
-              </div>
+              <Spacer size='m' />
+              {superBlockWithAccordionView.includes(superBlock) ? (
+                <SuperBlockAccordion
+                  challenges={superBlockChallenges}
+                  superBlock={superBlock}
+                  chosenBlock={chosenBlock}
+                  completedChallengeIds={completedChallenges.map(c => c.id)}
+                />
+              ) : (
+                <div className='block-ui'>
+                  {blocks.map(block => {
+                    const blockChallenges = superBlockChallenges.filter(
+                      c => c.block === block
+                    );
+                    const blockType = blockChallenges[0].blockType;
+
+                    return (
+                      <Block
+                        key={block}
+                        block={block}
+                        blockType={blockType}
+                        challenges={blockChallenges}
+                        superBlock={superBlock}
+                      />
+                    );
+                  })}
+                  {showCertification && (
+                    <CertChallenge
+                      certification={certification}
+                      superBlock={superBlock}
+                      title={title}
+                      user={user}
+                    />
+                  )}
+                </div>
+              )}
               {!isSignedIn && !signInLoading && (
                 <>
-                  <Spacer size='large' />
+                  <Spacer size='l' />
                   <Login block={true}>{t('buttons.logged-out-cta-btn')}</Login>
                 </>
               )}
-              <Spacer size='large' />
+              <Spacer size='l' />
               <h3
                 className='text-center big-block-title'
                 style={{ whiteSpace: 'pre-line' }}
               >
                 {t(`intro:misc-text.browse-other`)}
               </h3>
-              <Spacer size='medium' />
-              <Map />
-              <Spacer size='large' />
+              <Spacer size='m' />
+              <Map allChallenges={allChallenges} />
+              <Spacer size='l' />
             </Col>
           </Row>
         </main>
@@ -278,14 +326,7 @@ export default connect(
 )(withTranslation()(memo(SuperBlockIntroductionPage)));
 
 export const query = graphql`
-  query SuperBlockIntroPageBySlug($slug: String!, $superBlock: String!) {
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      frontmatter {
-        certification
-        superBlock
-        title
-      }
-    }
+  query SuperBlockIntroPageQuery {
     allChallengeNode(
       sort: {
         fields: [
@@ -294,23 +335,24 @@ export const query = graphql`
           challenge___challengeOrder
         ]
       }
-      filter: { challenge: { superBlock: { eq: $superBlock } } }
     ) {
-      edges {
-        node {
-          challenge {
-            fields {
-              slug
-              blockName
-            }
-            id
-            block
-            challengeType
-            title
-            order
-            superBlock
-            dashedName
+      nodes {
+        challenge {
+          fields {
+            slug
+            blockName
           }
+          id
+          block
+          blockType
+          challengeType
+          title
+          order
+          superBlock
+          dashedName
+          blockLayout
+          chapter
+          module
         }
       }
     }

@@ -1,3 +1,4 @@
+import { createSelector } from 'reselect';
 import { challengeTypes } from '../../../../../shared/config/challenge-types';
 import {
   completedChallengesSelector,
@@ -15,13 +16,14 @@ export const challengeFilesSelector = state => state[ns].challengeFiles;
 export const challengeMetaSelector = state => state[ns].challengeMeta;
 export const challengeTestsSelector = state => state[ns].challengeTests;
 export const consoleOutputSelector = state => state[ns].consoleOut;
-export const completedChallengesIdsSelector = state =>
-  completedChallengesSelector(state).map(node => node.id);
-export const isChallengeCompletedSelector = state => {
-  const completedChallenges = completedChallengesSelector(state);
-  const { id: currentChallengeId } = challengeMetaSelector(state);
-  return completedChallenges.some(({ id }) => id === currentChallengeId);
-};
+export const completedChallengesIdsSelector = createSelector(
+  completedChallengesSelector,
+  completedChallenges => completedChallenges.map(node => node.id)
+);
+export const isChallengeCompletedSelector = createSelector(
+  [completedChallengesIdsSelector, challengeMetaSelector],
+  (ids, meta) => ids.includes(meta.id)
+);
 export const isCodeLockedSelector = state => state[ns].isCodeLocked;
 export const isCompletionModalOpenSelector = state =>
   state[ns].modal.completion;
@@ -34,6 +36,9 @@ export const isFinishExamModalOpenSelector = state =>
 export const isSurveyModalOpenSelector = state => state[ns].modal.survey;
 export const isExamResultsModalOpenSelector = state =>
   state[ns].modal.examResults;
+export const isExitQuizModalOpenSelector = state => state[ns].modal.exitQuiz;
+export const isFinishQuizModalOpenSelector = state =>
+  state[ns].modal.finishQuiz;
 export const isProjectPreviewModalOpenSelector = state =>
   state[ns].modal.projectPreview;
 export const isShortcutsModalOpenSelector = state => state[ns].modal.shortcuts;
@@ -89,7 +94,9 @@ export const challengeDataSelector = state => {
     challengeType === challengeTypes.html ||
     challengeType === challengeTypes.modern ||
     challengeType === challengeTypes.multifileCertProject ||
-    challengeType === challengeTypes.python
+    challengeType === challengeTypes.multifilePythonCertProject ||
+    challengeType === challengeTypes.python ||
+    challengeType === challengeTypes.lab
   ) {
     const { required = [], template = '' } = challengeMetaSelector(state);
     challengeData = {
@@ -102,44 +109,45 @@ export const challengeDataSelector = state => {
   return challengeData;
 };
 
-export const currentBlockIdsSelector = state => {
-  const { block, certification, challengeType } = challengeMetaSelector(state);
-  const allChallengesInfo = allChallengesInfoSelector(state);
+export const currentBlockIdsSelector = createSelector(
+  challengeMetaSelector,
+  allChallengesInfoSelector,
+  (challengeMeta, allChallengesInfo) => {
+    const { block, certification, challengeType } = challengeMeta;
 
-  return getCurrentBlockIds(
-    allChallengesInfo,
-    block,
-    certification,
-    challengeType
-  );
-};
-
-export const completedChallengesInBlockSelector = state => {
-  const completedChallengesIds = completedChallengesIdsSelector(state);
-  const currentBlockIds = currentBlockIdsSelector(state);
-  const { id } = challengeMetaSelector(state);
-
-  return getCompletedChallengesInBlock(
-    completedChallengesIds,
-    currentBlockIds,
-    id
-  );
-};
-
-export const completedPercentageSelector = state => {
-  const isSignedIn = isSignedInSelector(state);
-  if (isSignedIn) {
-    const completedChallengesIds = completedChallengesIdsSelector(state);
-    const { id } = challengeMetaSelector(state);
-    const currentBlockIds = currentBlockIdsSelector(state);
-    const completedPercentage = getCompletedPercentage(
-      completedChallengesIds,
-      currentBlockIds,
-      id
+    return getCurrentBlockIds(
+      allChallengesInfo,
+      block,
+      certification,
+      challengeType
     );
-    return completedPercentage;
-  } else return 0;
-};
+  }
+);
+
+export const completedChallengesInBlockSelector = createSelector(
+  completedChallengesIdsSelector,
+  currentBlockIdsSelector,
+  challengeMetaSelector,
+  (completedChallengesIds, currentBlockIds, { id }) =>
+    getCompletedChallengesInBlock(completedChallengesIds, currentBlockIds, id)
+);
+
+export const completedPercentageSelector = createSelector(
+  isSignedInSelector,
+  completedChallengesSelector,
+  challengeMetaSelector,
+  currentBlockIdsSelector,
+  (isSignedIn, completedChallenges, { id }, currentBlockIds) => {
+    if (isSignedIn) {
+      const completedPercentage = getCompletedPercentage(
+        completedChallenges.map(node => node.id),
+        currentBlockIds,
+        id
+      );
+      return completedPercentage;
+    } else return 0;
+  }
+);
 
 export const isBlockNewlyCompletedSelector = state => {
   const completedPercentage = completedPercentageSelector(state);

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
+import { useFeature } from '@growthbook/growthbook-react';
+import { Spacer } from '@freecodecamp/ui';
+
 import Caret from '../../assets/icons/caret';
-import { Spacer } from '../helpers';
+import GreenPass from '../../assets/icons/green-pass';
 
 const POBOX = (
   <>
@@ -19,8 +22,10 @@ export const CtaText = (): JSX.Element => {
   const { t } = useTranslation();
   return (
     <>
-      <h1 data-playwright-test-label='main-head'>{t('donate.help-more')}</h1>
-      <Spacer size='medium' />
+      <h1 data-playwright-test-label='main-head' id='content-start'>
+        {t('donate.help-more')}
+      </h1>
+      <Spacer size='m' />
       <p data-playwright-test-label='donate-text-1'>{t('donate.efficiency')}</p>
       <p data-playwright-test-label='donate-text-2'>
         {t('donate.why-donate-1')}
@@ -42,15 +47,13 @@ export const ThankYouMessage = ({
   const { t } = useTranslation();
   return (
     <>
-      <h1 data-playwright-test-label='main-head' data-cy='donate.thank-you'>
-        {t('donate.thank-you')}
+      <h1 data-playwright-test-label='main-head'>
+        {t('donate.thank-you-continued')}
       </h1>
       {(askForDonation || thankContributon) && (
         <>
-          <Spacer size='medium' />
-          <p data-cy='donate.crucial-contribution'>
-            {t('donate.crucial-contribution')}
-          </p>
+          <Spacer size='m' />
+          <p>{t('donate.crucial-contribution')}</p>
         </>
       )}
       {askForDonation && <OtherWaysToSupport />}
@@ -58,17 +61,15 @@ export const ThankYouMessage = ({
   );
 };
 
-export const OtherWaysToSupport = (): JSX.Element => {
+const OtherWaysToSupport = (): JSX.Element => {
   const { t } = useTranslation();
   return (
     <>
-      <p data-cy='donate.if-support-further'>
+      <p>
         <Trans i18nKey='donate.if-support-further'>
           <a href={t('links:donate.one-time-external-url')}>placeholder</a>
           <a href={t('links:donate.mail-check-url')}>placeholder</a>
-          <a data-cy='donate-link' href={t('links:donate.other-ways-url')}>
-            placeholder
-          </a>
+          <a href={t('links:donate.other-ways-url')}>placeholder</a>
         </Trans>
       </p>
     </>
@@ -87,14 +88,15 @@ const FaqItem = (
         className='map-title'
         onClick={() => setExpanded(!isExpanded)}
         aria-expanded={isExpanded}
+        aria-controls={`donate-faq-content-${key}`}
       >
         <Caret />
         <h3>{title}</h3>
       </button>
       {isExpanded && (
-        <>
-          <div className='map-challenges-ul'>{text}</div>
-        </>
+        <div className='map-challenges-ul' id={`donate-faq-content-${key}`}>
+          {text}
+        </div>
       )}
     </div>
   );
@@ -201,7 +203,7 @@ export const DonationFaqText = (): JSX.Element => {
   return (
     <>
       <h2 data-playwright-test-label='faq-head'>{t('donate.faq')}</h2>
-      <Spacer size='small' />
+      <Spacer size='xs' />
       {faqItems.map((item, iterator) => FaqItem(item.Q, item.A, iterator))}
     </>
   );
@@ -311,9 +313,32 @@ export const GetSupporterBenefitsText = ({
   const { t } = useTranslation();
   return (
     <>
-      <Spacer size='large' />
+      <Spacer size='l' />
       <p>{t('donate.as-you-see')}</p>
       {!isDonating ? <p>{t('donate.get-benefits')}</p> : null}
     </>
+  );
+};
+
+export const ModalBenefitList = () => {
+  const { t } = useTranslation();
+  const isA11yFeatureEnabled = useFeature('a11y-donation-modal').on;
+
+  return (
+    // Set the initial focus to this list as it appears first in the second modal.
+    <ul {...(isA11yFeatureEnabled && { tabIndex: -1 })}>
+      <li>
+        <GreenPass aria-hidden={true} />
+        {t('donate.help-us-more-certifications')}
+      </li>
+      <li>
+        <GreenPass aria-hidden={true} />
+        {t('donate.remove-donation-popups')}
+      </li>
+      <li>
+        <GreenPass aria-hidden={true} />
+        {t('donate.help-millions-learn')}
+      </li>
+    </ul>
   );
 };

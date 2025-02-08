@@ -4,7 +4,6 @@
   "dashedName": "data-analysis-with-python-projects",
   "helpCategory": "Python",
   "order": 2,
-  "time": "150 hours",
   "superBlock": "data-analysis-with-python",
   "challengeOrder": [
     {
@@ -27,5 +26,6 @@
       "id": "5e4f5c4b570f7e3a4949899f",
       "title": "Sea Level Predictor"
     }
-  ]
+  ],
+  "blockLayout": "project-list"
 }

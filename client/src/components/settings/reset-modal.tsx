@@ -1,9 +1,13 @@
-import { Modal } from '@freecodecamp/react-bootstrap';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@freecodecamp/ui';
-
-import { Spacer } from '../helpers';
+import {
+  Button,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  Modal,
+  Spacer
+} from '@freecodecamp/ui';
 
 type ResetModalProps = {
   onHide: () => void;
@@ -14,26 +18,30 @@ type ResetModalProps = {
 function ResetModal(props: ResetModalProps): JSX.Element {
   const { t } = useTranslation();
   const { show, onHide } = props;
+  const [verifyText, setVerifyText] = useState('');
+
+  const handleVerifyTextChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setVerifyText(event.target.value);
+  };
 
   return (
-    <Modal
-      aria-labelledby='modal-title'
-      backdrop={true}
-      bsSize='lg'
-      className='text-center'
-      keyboard={true}
-      onHide={onHide}
-      show={show}
-    >
-      <Modal.Header closeButton={true}>
-        <Modal.Title id='modal-title'>
-          {t('settings.danger.reset-heading')}
-        </Modal.Title>
+    <Modal size='large' onClose={onHide} variant='danger' open={show}>
+      <Modal.Header showCloseButton={true} closeButtonClassNames='close'>
+        {t('settings.danger.reset-heading')}
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body alignment='start'>
         <p>{t('settings.danger.reset-p1')}</p>
+        <ul>
+          <li>{t('settings.danger.reset-item-1')}</li>
+          <li>{t('settings.danger.reset-item-2')}</li>
+          <li>{t('settings.danger.reset-item-3')}</li>
+        </ul>
         <p>{t('settings.danger.reset-p2')}</p>
-        <hr />
+        <p>{t('settings.danger.reset-p3')}</p>
+      </Modal.Body>
+      <Modal.Footer>
         <Button
           block={true}
           size='large'
@@ -43,19 +51,32 @@ function ResetModal(props: ResetModalProps): JSX.Element {
         >
           {t('settings.danger.nevermind-2')}
         </Button>
-        <Spacer size='small' />
+        <Spacer size='xs' />
+        <FormGroup controlId='verify-reset'>
+          <ControlLabel htmlFor='verify-reset-input'>
+            {t('settings.danger.verify-text', {
+              verifyText: t('settings.danger.verify-reset-text')
+            })}
+          </ControlLabel>
+          <Spacer size='xs' />
+          <FormControl
+            onChange={handleVerifyTextChange}
+            value={verifyText}
+            id='verify-reset-input'
+          />
+        </FormGroup>
+        <Spacer size='xs' />
+        {/* @ts-expect-error freecodecamp/ui doesn't allow disable to be false: https://github.com/freeCodeCamp/ui/issues/473 */}
         <Button
           block={true}
           size='large'
           variant='danger'
+          disabled={verifyText !== t('settings.danger.verify-reset-text')}
           onClick={props.reset}
           type='button'
         >
           {t('settings.danger.reset-confirm')}
         </Button>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>{t('buttons.close')}</Button>
       </Modal.Footer>
     </Modal>
   );

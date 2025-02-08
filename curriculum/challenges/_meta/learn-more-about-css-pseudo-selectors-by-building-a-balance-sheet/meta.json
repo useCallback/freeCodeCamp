@@ -6,9 +6,6 @@
   "dashedName": "learn-more-about-css-pseudo-selectors-by-building-a-balance-sheet",
   "helpCategory": "HTML-CSS",
   "order": 10,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "2022/responsive-web-design",
   "challengeOrder": [
     {
@@ -275,5 +272,6 @@
       "id": "6201a59be346d399c21d10b1",
       "title": "Step 66"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-grid"
 }

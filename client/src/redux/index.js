@@ -9,21 +9,21 @@ import {
 import { createAcceptTermsSaga } from './accept-terms-saga';
 import { actionTypes, ns as MainApp } from './action-types';
 import { createAppMountSaga } from './app-mount-saga';
-import { createCodeAllySaga } from './codeally-saga';
 import { createDonationSaga } from './donation-saga';
 import failedUpdatesEpic from './failed-updates-epic';
 import { createFetchUserSaga } from './fetch-user-saga';
-import { createGaSaga } from './ga-saga';
 import hardGoToEpic from './hard-go-to-epic';
 import { createReportUserSaga } from './report-user-saga';
 import { createSaveChallengeSaga } from './save-challenge-saga';
-import { completionCountSelector, savedChallengesSelector } from './selectors';
+import { savedChallengesSelector } from './selectors';
 import { actionTypes as settingsTypes } from './settings/action-types';
 import { createShowCertSaga } from './show-cert-saga';
 import updateCompleteEpic from './update-complete-epic';
 import { createUserTokenSaga } from './user-token-saga';
 import { createMsUsernameSaga } from './ms-username-saga';
 import { createSurveySaga } from './survey-saga';
+import { createSessionCompletedChallengesSaga } from './session-completed-challenges';
+import { createThemeSaga } from './theme-saga';
 
 const defaultFetchState = {
   pending: true,
@@ -51,25 +51,22 @@ export const defaultDonationFormState = {
 
 const initialState = {
   appUsername: '',
-  showMultipleProgressModals: false,
+  isRandomCompletionThreshold: false,
   recentlyClaimedBlock: null,
-  completionCountWhenShownProgressModal: 0,
-  progressDonationModalShown: false,
-  completionCount: 0,
   currentChallengeId: store.get(CURRENT_CHALLENGE_KEY),
   examInProgress: false,
   isProcessing: false,
+  theme: 'light',
   showCert: {},
   showCertFetchState: {
     ...defaultFetchState
   },
-  showCodeAlly: false,
   user: {},
   userFetchState: {
     ...defaultFetchState
   },
   allChallengesInfo: {
-    challengeEdges: [],
+    challengeNodes: [],
     certificateNodes: []
   },
   userProfileFetchState: {
@@ -92,17 +89,17 @@ export const epics = [hardGoToEpic, failedUpdatesEpic, updateCompleteEpic];
 
 export const sagas = [
   ...createAcceptTermsSaga(actionTypes),
+  ...createThemeSaga(actionTypes),
   ...createAppMountSaga(actionTypes),
-  ...createCodeAllySaga(actionTypes),
   ...createDonationSaga(actionTypes),
-  ...createGaSaga(actionTypes),
   ...createFetchUserSaga(actionTypes),
   ...createShowCertSaga(actionTypes),
   ...createReportUserSaga(actionTypes),
   ...createUserTokenSaga(actionTypes),
   ...createSaveChallengeSaga(actionTypes),
   ...createMsUsernameSaga(actionTypes),
-  ...createSurveySaga(actionTypes)
+  ...createSurveySaga(actionTypes),
+  ...createSessionCompletedChallengesSaga(actionTypes)
 ];
 
 function spreadThePayloadOnUser(state, payload) {
@@ -214,7 +211,8 @@ export const reducer = handleActions(
         [username]: { ...user, sessionUser: true }
       },
       appUsername: username,
-      currentChallengeId: user.currentChallengeId,
+      currentChallengeId:
+        user.currentChallengeId || store.get(CURRENT_CHALLENGE_KEY),
       userFetchState: {
         pending: false,
         complete: true,
@@ -259,6 +257,10 @@ export const reducer = handleActions(
         error: payload
       }
     }),
+    [actionTypes.setTheme]: (state, { payload: theme }) => ({
+      ...state,
+      theme
+    }),
     [actionTypes.onlineStatusChange]: (state, { payload: isOnline }) => ({
       ...state,
       isOnline
@@ -279,16 +281,9 @@ export const reducer = handleActions(
       ...state,
       recentlyClaimedBlock: null
     }),
-    [actionTypes.setCompletionCountWhenShownProgressModal]: state => ({
+    [actionTypes.setIsRandomCompletionThreshold]: (state, { payload }) => ({
       ...state,
-      progressDonationModalShown: true,
-      completionCountWhenShownProgressModal: completionCountSelector({
-        [MainApp]: state
-      })
-    }),
-    [actionTypes.setShowMultipleProgressModals]: (state, { payload }) => ({
-      ...state,
-      showMultipleProgressModals: payload
+      isRandomCompletionThreshold: payload
     }),
     [actionTypes.resetUserData]: state => ({
       ...state,
@@ -336,9 +331,6 @@ export const reducer = handleActions(
       let submittedchallenges = [
         { ...submittedChallenge, completedDate: Date.now() }
       ];
-      if (submittedChallenge.challArray) {
-        submittedchallenges = submittedChallenge.challArray;
-      }
       const { appUsername } = state;
 
       return examResults && !examResults.passed
@@ -354,7 +346,6 @@ export const reducer = handleActions(
           }
         : {
             ...state,
-            completionCount: state.completionCount + 1,
             user: {
               ...state.user,
               [appUsername]: {
@@ -416,18 +407,6 @@ export const reducer = handleActions(
             userToken: null
           }
         }
-      };
-    },
-    [actionTypes.hideCodeAlly]: state => {
-      return {
-        ...state,
-        showCodeAlly: false
-      };
-    },
-    [actionTypes.showCodeAlly]: state => {
-      return {
-        ...state,
-        showCodeAlly: true
       };
     },
     [actionTypes.startExam]: state => {
@@ -510,8 +489,6 @@ export const reducer = handleActions(
       payload ? spreadThePayloadOnUser(state, payload) : state,
     [settingsTypes.updateMySoundComplete]: (state, { payload }) =>
       payload ? spreadThePayloadOnUser(state, payload) : state,
-    [settingsTypes.updateMyThemeComplete]: (state, { payload }) =>
-      payload ? spreadThePayloadOnUser(state, payload) : state,
     [settingsTypes.updateMyKeyboardShortcutsComplete]: (state, { payload }) =>
       payload ? spreadThePayloadOnUser(state, payload) : state,
     [settingsTypes.updateMyHonestyComplete]: (state, { payload }) =>
@@ -519,6 +496,8 @@ export const reducer = handleActions(
     [settingsTypes.updateMyQuincyEmailComplete]: (state, { payload }) =>
       payload ? spreadThePayloadOnUser(state, payload) : state,
     [settingsTypes.updateMyPortfolioComplete]: (state, { payload }) =>
+      payload ? spreadThePayloadOnUser(state, payload) : state,
+    [settingsTypes.resetMyEditorLayoutComplete]: (state, { payload }) =>
       payload ? spreadThePayloadOnUser(state, payload) : state,
     [settingsTypes.verifyCertComplete]: (state, { payload }) =>
       payload ? spreadThePayloadOnUser(state, payload) : state,
