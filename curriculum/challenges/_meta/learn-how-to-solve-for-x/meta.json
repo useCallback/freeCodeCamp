@@ -4,9 +4,6 @@
   "dashedName": "learn-how-to-solve-for-x",
   "helpCategory": "Python",
   "order": 1,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "college-algebra-with-python",
   "challengeOrder": [
     {
@@ -17,5 +14,6 @@
       "id": "6331d233b51aeedd1a2bd645",
       "title": "How to Solve for X: Extra"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

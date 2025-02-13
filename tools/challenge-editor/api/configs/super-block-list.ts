@@ -4,7 +4,7 @@ export const superBlockList = [
     path: '01-responsive-web-design'
   },
   {
-    name: 'JavaScript Algorithms and Data Structures',
+    name: 'Legacy JavaScript Algorithms and Data Structures',
     path: '02-javascript-algorithms-and-data-structures'
   },
   {
@@ -52,7 +52,7 @@ export const superBlockList = [
     path: '14-responsive-web-design-22'
   },
   {
-    name: 'JavaScript Algorithms and Data Structures (Beta)',
+    name: 'JavaScript Algorithms and Data Structures',
     path: '15-javascript-algorithms-and-data-structures-22'
   },
   {
@@ -72,15 +72,23 @@ export const superBlockList = [
     path: '19-foundational-c-sharp-with-microsoft'
   },
   {
-    name: 'Upcoming Python',
-    path: '20-upcoming-python'
-  },
-  {
     name: 'A2 English for Developers (Beta)',
     path: '21-a2-english-for-developers'
   },
   {
     name: 'Rosetta Code',
     path: '22-rosetta-code'
+  },
+  {
+    name: 'Python For Everybody',
+    path: '23-python-for-everybody'
+  },
+  {
+    name: 'B1 English for Developers (Beta)',
+    path: '24-b1-english-for-developers'
+  },
+  {
+    name: 'Certified Full Stack Developer',
+    path: '25-front-end-development'
   }
 ];

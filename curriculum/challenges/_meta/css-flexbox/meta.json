@@ -4,9 +4,6 @@
   "dashedName": "css-flexbox",
   "helpCategory": "HTML-CSS",
   "order": 5,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "responsive-web-design",
   "challengeOrder": [
     {
@@ -77,5 +74,6 @@
       "id": "587d78af367417b2b2512b00",
       "title": "Use the align-self Property"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

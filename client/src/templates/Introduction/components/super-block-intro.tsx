@@ -1,9 +1,9 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Alert } from '@freecodecamp/ui';
-import { SuperBlocks } from '../../../../../shared/config/superblocks';
-import { SuperBlockIcon } from '../../../assets/icons/superblock-icon';
-import { Spacer, Link } from '../../../components/helpers';
+import { useTranslation, Trans } from 'react-i18next';
+import { Alert, Spacer } from '@freecodecamp/ui';
+import { SuperBlocks } from '../../../../../shared/config/curriculum';
+import { SuperBlockIcon } from '../../../assets/superblock-icon';
+import { Link } from '../../../components/helpers';
 
 interface SuperBlockIntroProps {
   superBlock: SuperBlocks;
@@ -15,14 +15,15 @@ export const ConditionalDonationAlert = ({
   superBlock,
   onCertificationDonationAlertClick,
   isDonating
-}: SuperBlockIntroProps): JSX.Element => {
+}: SuperBlockIntroProps): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const betaCertifications = [
-    SuperBlocks.JsAlgoDataStructNew,
+  const betaCertifications: SuperBlocks[] = [];
+
+  const unfinishedCertifications = [
     SuperBlocks.A2English,
-    SuperBlocks.UpcomingPython,
-    SuperBlocks.SciCompPy
+    SuperBlocks.B1English,
+    SuperBlocks.FullStackDeveloper
   ];
 
   if (!isDonating && betaCertifications.includes(superBlock))
@@ -30,9 +31,9 @@ export const ConditionalDonationAlert = ({
       <Alert variant='info' className='annual-donation-alert'>
         <p>{t('donate.beta-certification')}</p>
         <hr />
-        <p className={'text-center'}>
+        <p className='btn-container'>
           <Link
-            className='btn'
+            className='btn donate-button'
             key='donate'
             sameTab={false}
             to='/donate'
@@ -43,7 +44,23 @@ export const ConditionalDonationAlert = ({
         </p>
       </Alert>
     );
-  return <></>;
+
+  if (!isDonating && unfinishedCertifications.includes(superBlock))
+    return (
+      <Alert variant='info' className='annual-donation-alert'>
+        <p>{t('donate.unfinished-certification-2')}</p>
+        <hr />
+        <p>
+          <Trans i18nKey='donate.consider-donating-2'>
+            <Link className='inline' to='/donate'>
+              placeholder
+            </Link>
+          </Trans>
+        </p>
+      </Alert>
+    );
+
+  return null;
 };
 
 function SuperBlockIntro(props: SuperBlockIntroProps): JSX.Element {
@@ -73,9 +90,9 @@ function SuperBlockIntro(props: SuperBlockIntroProps): JSX.Element {
       <h1 id='content-start' className='text-center big-heading'>
         {i18nSuperBlock}
       </h1>
-      <Spacer size='medium' />
+      <Spacer size='m' />
       <SuperBlockIcon className='cert-header-icon' superBlock={superBlock} />
-      <Spacer size='medium' />
+      <Spacer size='m' />
       {superBlockIntroText.map((str, i) => (
         <p dangerouslySetInnerHTML={{ __html: str }} key={i} />
       ))}

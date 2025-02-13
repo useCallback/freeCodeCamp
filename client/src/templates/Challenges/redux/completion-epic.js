@@ -17,7 +17,6 @@ import {
 } from '../../../utils/error-messages';
 import {
   challengeTypes,
-  hasNoTests,
   submitTypes
 } from '../../../../../shared/config/challenge-types';
 import { actionTypes as submitActionTypes } from '../../../redux/action-types';
@@ -50,14 +49,14 @@ import {
   isBlockNewlyCompletedSelector
 } from './selectors';
 
-function postChallenge(update, username) {
+function postChallenge(update) {
   const {
     payload: { challengeType }
   } = update;
   const saveChallenge = postUpdate$(update).pipe(
     retry(3),
     switchMap(({ data }) => {
-      const { savedChallenges, points, message, examResults } = data;
+      const { savedChallenges, message, examResults } = data;
       const payloadWithClientProperties = {
         ...omit(update.payload, ['files'])
       };
@@ -72,11 +71,7 @@ function postChallenge(update, username) {
 
       let actions = [
         submitComplete({
-          submittedChallenge: {
-            username,
-            points,
-            ...payloadWithClientProperties
-          },
+          submittedChallenge: payloadWithClientProperties,
           savedChallenges: mapFilesToChallengeFiles(savedChallenges),
           examResults
         }),
@@ -100,10 +95,7 @@ function postChallenge(update, username) {
 function submitModern(type, state) {
   const challengeType = state.challenge.challengeMeta.challengeType;
   const tests = challengeTestsSelector(state);
-  if (
-    hasNoTests(challengeType) ||
-    (tests.length > 0 && tests.every(test => test.pass && !test.err))
-  ) {
+  if (tests.length === 0 || tests.every(test => test.pass && !test.err)) {
     if (type === actionTypes.checkChallenge) {
       return of({ type: 'this was a check challenge' });
     }
@@ -111,12 +103,12 @@ function submitModern(type, state) {
     if (type === actionTypes.submitChallenge) {
       const { id, block } = challengeMetaSelector(state);
       const challengeFiles = challengeFilesSelector(state);
-      const { username } = userSelector(state);
 
       let body;
       if (
         block === 'javascript-algorithms-and-data-structures-projects' ||
-        challengeType === challengeTypes.multifileCertProject
+        challengeType === challengeTypes.multifileCertProject ||
+        challengeType === challengeTypes.multifilePythonCertProject
       ) {
         body = standardizeRequestBody({ id, challengeType, challengeFiles });
       } else {
@@ -130,7 +122,7 @@ function submitModern(type, state) {
         endpoint: '/modern-challenge-completed',
         payload: body
       };
-      return postChallenge(update, username);
+      return postChallenge(update);
     }
   }
   return empty();
@@ -163,7 +155,6 @@ function submitBackendChallenge(type, state) {
   if (tests.length > 0 && tests.every(test => test.pass && !test.err)) {
     if (type === actionTypes.submitChallenge) {
       const { id } = challengeMetaSelector(state);
-      const { username } = userSelector(state);
       const {
         solution: { value: solution }
       } = projectFormValuesSelector(state);
@@ -173,7 +164,7 @@ function submitBackendChallenge(type, state) {
         endpoint: '/backend-challenge-completed',
         payload: challengeInfo
       };
-      return postChallenge(update, username);
+      return postChallenge(update);
     }
   }
   return empty();
@@ -210,14 +201,13 @@ function submitMsTrophy(type, state) {
   if (type === actionTypes.submitChallenge) {
     const { id, challengeType } = challengeMetaSelector(state);
 
-    const { username } = userSelector(state);
     const challengeInfo = { id, challengeType };
 
     const update = {
       endpoint: '/ms-trophy-challenge-completed',
       payload: challengeInfo
     };
-    return postChallenge(update, username);
+    return postChallenge(update);
   }
   return empty();
 }
@@ -229,7 +219,7 @@ export default function completionEpic(action$, state$) {
       const state = state$.value;
 
       const {
-        nextBlock,
+        isLastChallengeInBlock,
         nextChallengePath,
         challengeType,
         superBlock,
@@ -253,8 +243,7 @@ export default function completionEpic(action$, state$) {
         submitter = submitters[submitTypes[challengeType]];
       }
 
-      const lastChallengeInBlock = block !== nextBlock;
-      let pathToNavigateTo = lastChallengeInBlock
+      let pathToNavigateTo = isLastChallengeInBlock
         ? blockHashSlug
         : nextChallengePath;
 
@@ -264,7 +253,7 @@ export default function completionEpic(action$, state$) {
 
       return submitter(type, state).pipe(
         concat(
-          of(setIsAdvancing(!lastChallengeInBlock), setIsProcessing(false))
+          of(setIsAdvancing(!isLastChallengeInBlock), setIsProcessing(false))
         ),
         mergeMap(x =>
           canAllowDonationRequest(state, x)

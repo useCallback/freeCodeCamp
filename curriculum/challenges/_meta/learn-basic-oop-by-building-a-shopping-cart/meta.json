@@ -5,13 +5,8 @@
   "hasEditableBoundaries": true,
   "dashedName": "learn-basic-oop-by-building-a-shopping-cart",
   "helpCategory": "JavaScript",
-  "order": 14,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
+  "order": 18,
   "superBlock": "javascript-algorithms-and-data-structures-v8",
-  "superOrder": 4,
-  "isBeta": true,
   "challengeOrder": [
     {
       "id": "63ec14d1c216aa063f0be4af",
@@ -253,5 +248,6 @@
       "id": "63f03b1ed5ab15420c057463",
       "title": "Step 60"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-grid"
 }

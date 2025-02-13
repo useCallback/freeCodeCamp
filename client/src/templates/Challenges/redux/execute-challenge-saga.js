@@ -37,8 +37,8 @@ import {
   interruptCodeExecution,
   runPythonCode
 } from '../utils/python-worker-handler';
-import { executeGA } from '../../../redux/actions';
 import { fireConfetti } from '../../../utils/fire-confetti';
+import callGA from '../../../analytics/call-ga';
 import { actionTypes } from './action-types';
 import {
   disableBuildOnError,
@@ -70,7 +70,10 @@ function* executeCancellableChallengeSaga(payload) {
   const { challengeFiles } = yield select(challengeDataSelector);
 
   // if multifileCertProject, see if body/code size is submittable
-  if (challengeType === challengeTypes.multifileCertProject) {
+  if (
+    challengeType === challengeTypes.multifileCertProject ||
+    challengeType === challengeTypes.multifilePythonCertProject
+  ) {
     const body = standardizeRequestBody({ id, challengeFiles, challengeType });
     const bodySizeInBytes = getStringSizeInBytes(body);
 
@@ -114,6 +117,8 @@ export function* executeChallengeSaga({ payload }) {
 
     const challengeData = yield select(challengeDataSelector);
     const challengeMeta = yield select(challengeMetaSelector);
+    // The buildData is used even if there are build errors, so that lessons
+    // with syntax errors can be tested.
     const buildData = yield buildChallengeData(challengeData, {
       preview: false,
       disableLoopProtectTests: challengeMeta.disableLoopProtectTests,
@@ -124,7 +129,7 @@ export function* executeChallengeSaga({ payload }) {
     const testRunner = yield call(
       getTestRunner,
       buildData,
-      { proxyLogger, removeComments: challengeMeta.removeComments },
+      { proxyLogger },
       document
     );
     const testResults = yield executeTests(testRunner, tests);
@@ -140,14 +145,12 @@ export function* executeChallengeSaga({ payload }) {
     } else {
       playTone('tests-failed');
       if (challengeMeta.certification === 'responsive-web-design') {
-        yield put(
-          executeGA({
-            event: 'challenge_failed',
-            challenge_id: challengeMeta.id,
-            challenge_path: window?.location?.pathname,
-            challenge_files: challengeData.challengeFiles
-          })
-        );
+        yield call(callGA, {
+          event: 'challenge_failed',
+          challenge_id: challengeMeta.id,
+          challenge_path: window?.location?.pathname,
+          challenge_files: challengeData.challengeFiles
+        });
       }
     }
 
@@ -209,7 +212,7 @@ function* executeTests(testRunner, tests, testTimeout = 5000) {
         throw err;
       }
     } catch (err) {
-      const { actual, expected, syntaxError } = err;
+      const { actual, expected, errorType } = err;
 
       newTest.message = text
         .replace('--fcc-expected--', expected)
@@ -217,15 +220,20 @@ function* executeTests(testRunner, tests, testTimeout = 5000) {
       if (err === 'timeout') {
         newTest.err = 'Test timed out';
         newTest.message = `${newTest.message} (${newTest.err})`;
-      } else if (syntaxError) {
-        newTest.err = 'syntax error';
-        newTest.message = `<p>${i18next.t('learn.syntax-error')}</p>`;
+      } else if (errorType) {
+        const msgKey =
+          errorType === 'indentation'
+            ? 'learn.indentation-error'
+            : 'learn.syntax-error';
+        newTest.message = `<p>${i18next.t(msgKey)}</p>`;
       } else {
         const { message, stack } = err;
         newTest.err = message + '\n' + stack;
         newTest.stack = stack;
       }
-      yield put(updateConsole(newTest.message));
+
+      const withIndex = newTest.message.replace(/<p>/, `<p>${i + 1}. `);
+      yield put(updateConsole(withIndex));
     } finally {
       testResults.push(newTest);
     }
@@ -236,24 +244,24 @@ function* executeTests(testRunner, tests, testTimeout = 5000) {
 // updates preview frame and the fcc console.
 export function* previewChallengeSaga(action) {
   const flushLogs = action?.type !== actionTypes.previewMounted;
-  yield delay(700);
-
   const isBuildEnabled = yield select(isBuildEnabledSelector);
   if (!isBuildEnabled) {
     return;
   }
 
+  const isExecuting = yield select(isExecutingSelector);
+  // executeChallengeSaga flushes the logs, so there's no need to if that's
+  // just happened.
+  if (flushLogs && !isExecuting) {
+    yield put(initLogs());
+    yield put(initConsole(''));
+  }
+  yield delay(700);
+
   const logProxy = yield channel();
   const proxyLogger = args => logProxy.put(args);
 
   try {
-    const isExecuting = yield select(isExecutingSelector);
-    // executeChallengeSaga flushes the logs, so there's no need to if that's
-    // just happened.
-    if (flushLogs && !isExecuting) {
-      yield put(initLogs());
-      yield put(initConsole(''));
-    }
     yield fork(takeEveryConsole, logProxy);
 
     const challengeData = yield select(challengeDataSelector);
@@ -265,6 +273,10 @@ export function* previewChallengeSaga(action) {
         disableLoopProtectTests: challengeMeta.disableLoopProtectTests,
         disableLoopProtectPreview: challengeMeta.disableLoopProtectPreview
       });
+      // If there's an error building the challenge then throwing it here will
+      // let the user know there's a problem.
+      if (buildData.error) throw buildData.error;
+
       // evaluate the user code in the preview frame or in the worker
       if (challengeHasPreview(challengeData)) {
         const document = yield getContext('document');
@@ -274,29 +286,32 @@ export function* previewChallengeSaga(action) {
         // Python challenges do not use the preview frame, they use a web worker
         // to run the code. The UI is handled by the xterm component, so there
         // is no need to update the preview frame.
-        if (challengeData.challengeType === challengeTypes.python) {
+        if (
+          challengeData.challengeType === challengeTypes.python ||
+          challengeData.challengeType ===
+            challengeTypes.multifilePythonCertProject
+        ) {
           yield updatePython(challengeData);
         } else {
           yield call(updatePreview, buildData, finalDocument, proxyLogger);
         }
       } else if (isJavaScriptChallenge(challengeData)) {
         const runUserCode = getTestRunner(buildData, {
-          proxyLogger,
-          removeComments: challengeMeta.removeComments
+          proxyLogger
         });
         // without a testString the testRunner just evaluates the user's code
         yield call(runUserCode, null, previewTimeout);
       }
     }
   } catch (err) {
-    console.log('previewChallengeSaga error', err);
     if (err[0] === 'timeout') {
       // TODO: translate the error
-      // eslint-disable-next-line no-ex-assign
       err[0] = `The code you have written is taking longer than the ${previewTimeout}ms our challenges allow. You may have created an infinite loop or need to write a more efficient algorithm`;
     }
-    console.log(err);
-    yield put(updateConsole(escape(err)));
+    // If the preview fails, the most useful thing to do is to show the learner
+    // what the error is. As such, we replace whatever is in the console with
+    // the error message.
+    yield put(initConsole(escape(err)));
   }
 }
 
@@ -305,7 +320,10 @@ export function* previewChallengeSaga(action) {
 // appropriately)
 function* updatePreviewSaga(action) {
   const challengeData = yield select(challengeDataSelector);
-  if (challengeData.challengeType === challengeTypes.python) {
+  if (
+    challengeData.challengeType === challengeTypes.python ||
+    challengeData.challengeType === challengeTypes.multifilePythonCertProject
+  ) {
     yield updatePython(challengeData);
   } else {
     // all other challenges have to recreate the preview
@@ -330,9 +348,8 @@ function* updatePython(challengeData) {
 }
 
 function* previewProjectSolutionSaga({ payload }) {
-  if (!payload) return;
-  const { showProjectPreview, challengeData } = payload;
-  if (!showProjectPreview) return;
+  if (!payload?.challengeData) return;
+  const { challengeData } = payload;
 
   try {
     if (canBuildChallenge(challengeData)) {

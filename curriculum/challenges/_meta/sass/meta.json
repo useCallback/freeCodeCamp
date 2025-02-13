@@ -1,12 +1,9 @@
 {
-  "name": "Sass",
+  "name": "SASS",
   "isUpcomingChange": false,
   "dashedName": "sass",
   "helpCategory": "HTML-CSS",
   "order": 2,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "front-end-development-libraries",
   "challengeOrder": [
     {
@@ -45,5 +42,6 @@
       "id": "587d7fa5367417b2b2512bbd",
       "title": "Extend One Set of CSS Styles to Another Element"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

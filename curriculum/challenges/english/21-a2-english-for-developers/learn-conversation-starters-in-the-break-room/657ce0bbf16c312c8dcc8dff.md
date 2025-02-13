@@ -7,7 +7,7 @@ dashedName: task-61
 
 # --description--
 
-There are some words you can use in your sentence to express how often something happen. They are called `adverbs of frequency`.
+There are some words you can use in your sentence to express how often something happens. They are called `adverbs of frequency`.
 
 `Usually` is a word that suggests that something happens more often than not but is not constant.
 
@@ -17,7 +17,7 @@ When `usually` is used with the verb `to be,` it is placed after the verb.
 With other verbs, `usually` comes before the main verb, for example: 
 `He usually works late.`
 
-# --question--
+# --questions--
 
 ## --text--
 

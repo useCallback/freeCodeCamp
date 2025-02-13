@@ -24,6 +24,8 @@ type StepOptions = {
   challengeId: ObjectID;
   challengeSeeds: Record<string, ChallengeSeed>;
   stepNum: number;
+  challengeType: number;
+  isFirstChallenge?: boolean;
 };
 
 export interface ChallengeSeed {
@@ -38,7 +40,9 @@ export interface ChallengeSeed {
 function getStepTemplate({
   challengeId,
   challengeSeeds,
-  stepNum
+  stepNum,
+  challengeType,
+  isFirstChallenge = false
 }: StepOptions): string {
   const seedTexts = Object.values(challengeSeeds)
     .map(({ contents, ext, editableRegionBoundaries }: ChallengeSeed) => {
@@ -65,12 +69,18 @@ function getStepTemplate({
   const seedHeadSection = getSeedSection(seedHeads, 'before-user-code');
   const seedTailSection = getSeedSection(seedTails, 'after-user-code');
 
+  const demoString = isFirstChallenge
+    ? `
+# demoType can either be 'onClick' or 'onLoad'. If the project or lab doesn't have a preview, delete the property
+demoType: onClick`
+    : '';
+
   return (
     `---
 id: ${challengeId.toString()}
 title: Step ${stepNum}
-challengeType: 0
-dashedName: step-${stepNum}
+challengeType: ${challengeType}
+dashedName: step-${stepNum}${demoString}
 ---
 
 # --description--

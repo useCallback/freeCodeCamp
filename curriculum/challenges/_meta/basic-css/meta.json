@@ -4,9 +4,6 @@
   "dashedName": "basic-css",
   "helpCategory": "HTML-CSS",
   "order": 1,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "responsive-web-design",
   "challengeOrder": [
     {
@@ -185,5 +182,6 @@
       "id": "5a9d72ad424fe3d0e10cad16",
       "title": "Use a media query to change a variable"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

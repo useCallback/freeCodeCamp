@@ -6,9 +6,6 @@
   "dashedName": "learn-css-flexbox-by-building-a-photo-gallery",
   "helpCategory": "HTML-CSS",
   "order": 6,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "2022/responsive-web-design",
   "challengeOrder": [
     {
@@ -107,5 +104,6 @@
       "id": "6153a3ebb4f7f05b8401b716",
       "title": "Step 24"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-grid"
 }

@@ -4,9 +4,6 @@
   "dashedName": "front-end-development-libraries-projects",
   "helpCategory": "JavaScript",
   "order": 6,
-  "time": "150 hours",
-  "template": "",
-  "required": [],
   "superBlock": "front-end-development-libraries",
   "challengeOrder": [
     {
@@ -29,5 +26,6 @@
       "id": "bd7158d8c442eddfaeb5bd0f",
       "title": "Build a 25 + 5 Clock"
     }
-  ]
+  ],
+  "blockLayout": "project-list"
 }

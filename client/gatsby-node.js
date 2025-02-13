@@ -4,8 +4,8 @@ const { createFilePath } = require('gatsby-source-filesystem');
 const uniq = require('lodash/uniq');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const webpack = require('webpack');
-const env = require('./config/env.json');
 
+const env = require('./config/env.json');
 const {
   createChallengePages,
   createBlockIntroPages,
@@ -23,16 +23,16 @@ exports.onCreateNode = function onCreateNode({ node, actions, getNode }) {
   if (node.internal.type === 'MarkdownRemark') {
     const slug = createFilePath({ node, getNode });
     if (!slug.includes('LICENSE')) {
-      const {
-        frontmatter: { component = '' }
-      } = node;
       createNodeField({ node, name: 'slug', value: slug });
-      createNodeField({ node, name: 'component', value: component });
     }
   }
 };
 
-exports.createPages = function createPages({ graphql, actions, reporter }) {
+exports.createPages = async function createPages({
+  graphql,
+  actions,
+  reporter
+}) {
   if (!env.algoliaAPIKey || !env.algoliaAppId) {
     if (process.env.FREECODECAMP_NODE_ENV === 'production') {
       throw new Error(
@@ -57,202 +57,173 @@ exports.createPages = function createPages({ graphql, actions, reporter }) {
 
   const { createPage } = actions;
 
-  return new Promise((resolve, reject) => {
-    // Query for all markdown 'nodes' and for the slug we previously created.
-    resolve(
-      graphql(`
-        {
-          allChallengeNode(
-            sort: {
-              fields: [
-                challenge___superOrder
-                challenge___order
-                challenge___challengeOrder
-              ]
-            }
-          ) {
-            edges {
-              node {
-                challenge {
-                  audioPath
-                  block
-                  certification
-                  challengeType
-                  dashedName
-                  disableLoopProtectTests
-                  disableLoopProtectPreview
-                  fields {
-                    slug
-                    blockHashSlug
-                  }
-                  fillInTheBlank {
-                    sentence
-                    blanks {
-                      answer
-                      feedback
-                    }
-                  }
-                  hasEditableBoundaries
-                  id
-                  msTrophyId
-                  order
-                  prerequisites {
-                    id
-                    title
-                  }
-                  required {
-                    link
-                    src
-                  }
-                  challengeOrder
-                  challengeFiles {
-                    name
-                    ext
-                    contents
-                    head
-                    tail
-                    history
-                    fileKey
-                  }
-                  solutions {
-                    contents
-                    ext
-                    history
-                  }
-                  superBlock
-                  superOrder
-                  template
-                  usesMultifileEditor
-                  scene {
-                    setup {
-                      background
-                      characters {
-                        character
-                        position {
-                          x
-                          y
-                          z
-                        }
-                      }
-                      audio {
-                        filename
-                        startTime
-                        startTimestamp
-                        finishTimestamp
-                      }
-                      alwaysShowDialogue
-                    }
-                    commands {
-                      background
-                      character
-                      position {
-                        x
-                        y
-                        z
-                      }
-                      startTime
-                      finishTime
-                      dialogue {
-                        text
-                        align
-                      }
-                    }
-                  }
-                }
+  const result = await graphql(`
+    {
+      allChallengeNode(
+        sort: {
+          fields: [
+            challenge___superOrder
+            challenge___order
+            challenge___challengeOrder
+          ]
+        }
+      ) {
+        edges {
+          node {
+            id
+            challenge {
+              block
+              blockType
+              blockLayout
+              certification
+              challengeType
+              dashedName
+              demoType
+              disableLoopProtectTests
+              disableLoopProtectPreview
+              fields {
+                slug
+                blockHashSlug
               }
-            }
-          }
-          allMarkdownRemark {
-            edges {
-              node {
-                fields {
-                  slug
-                  nodeIdentity
-                  component
-                }
-                frontmatter {
-                  certification
-                  block
-                  superBlock
-                  title
-                }
-                htmlAst
-                id
-                excerpt
+              id
+              isLastChallengeInBlock
+              order
+              required {
+                link
+                src
               }
+              challengeOrder
+              challengeFiles {
+                name
+                ext
+                contents
+                head
+                tail
+                history
+                fileKey
+              }
+              solutions {
+                contents
+                ext
+                history
+              }
+              superBlock
+              superOrder
+              template
+              usesMultifileEditor
             }
           }
         }
-      `).then(result => {
-        if (result.errors) {
-          console.log(result.errors);
-          return reject(result.errors);
-        }
-
-        // Create challenge pages.
-        result.data.allChallengeNode.edges.forEach(
-          createChallengePages(createPage)
-        );
-
-        const blocks = uniq(
-          result.data.allChallengeNode.edges.map(
-            ({
-              node: {
-                challenge: { block }
-              }
-            }) => block
-          )
-        );
-
-        const superBlocks = uniq(
-          result.data.allChallengeNode.edges.map(
-            ({
-              node: {
-                challenge: { superBlock }
-              }
-            }) => superBlock
-          )
-        );
-
-        // Create intro pages
-        // TODO: Remove allMarkdownRemark (populate from elsewhere)
-        result.data.allMarkdownRemark.edges.forEach(edge => {
-          const {
-            node: { frontmatter, fields }
-          } = edge;
-
-          if (!fields) {
-            return;
-          }
-          const { slug, nodeIdentity } = fields;
-          if (slug.includes('LICENCE')) {
-            return;
-          }
-          try {
-            if (nodeIdentity === 'blockIntroMarkdown') {
-              if (!blocks.includes(frontmatter.block)) {
-                return;
-              }
-            } else if (!superBlocks.includes(frontmatter.superBlock)) {
-              return;
+      }
+      allMarkdownRemark {
+        edges {
+          node {
+            fields {
+              slug
+              nodeIdentity
             }
-            const pageBuilder = createByIdentityMap[nodeIdentity](createPage);
-            pageBuilder(edge);
-          } catch (e) {
-            console.log(e);
-            console.log(`
+            frontmatter {
+              certification
+              block
+              superBlock
+              title
+            }
+            id
+          }
+        }
+      }
+    }
+  `);
+
+  const allChallengeNodes = result.data.allChallengeNode.edges.map(
+    ({ node }) => node
+  );
+
+  const createIdToNextPathMap = nodes =>
+    nodes.reduce((map, node, index) => {
+      const nextNode = nodes[index + 1];
+      const nextPath = nextNode ? nextNode.challenge.fields.slug : null;
+      if (nextPath) map[node.id] = nextPath;
+      return map;
+    }, {});
+
+  const createIdToPrevPathMap = nodes =>
+    nodes.reduce((map, node, index) => {
+      const prevNode = nodes[index - 1];
+      const prevPath = prevNode ? prevNode.challenge.fields.slug : null;
+      if (prevPath) map[node.id] = prevPath;
+      return map;
+    }, {});
+
+  const idToNextPathCurrentCurriculum =
+    createIdToNextPathMap(allChallengeNodes);
+
+  const idToPrevPathCurrentCurriculum =
+    createIdToPrevPathMap(allChallengeNodes);
+
+  // Create challenge pages.
+  result.data.allChallengeNode.edges.forEach(
+    createChallengePages(createPage, {
+      idToNextPathCurrentCurriculum,
+      idToPrevPathCurrentCurriculum
+    })
+  );
+
+  const blocks = uniq(
+    result.data.allChallengeNode.edges.map(
+      ({
+        node: {
+          challenge: { block }
+        }
+      }) => block
+    )
+  );
+
+  const superBlocks = uniq(
+    result.data.allChallengeNode.edges.map(
+      ({
+        node: {
+          challenge: { superBlock }
+        }
+      }) => superBlock
+    )
+  );
+
+  // Create intro pages
+  // TODO: Remove allMarkdownRemark (populate from elsewhere)
+  result.data.allMarkdownRemark.edges.forEach(edge => {
+    const {
+      node: { frontmatter, fields }
+    } = edge;
+
+    if (!fields) {
+      return;
+    }
+    const { slug, nodeIdentity } = fields;
+    if (slug.includes('LICENCE')) {
+      return;
+    }
+    if (nodeIdentity === 'blockIntroMarkdown') {
+      if (!blocks.includes(frontmatter.block)) {
+        return;
+      }
+    } else if (!superBlocks.includes(frontmatter.superBlock)) {
+      return;
+    }
+
+    try {
+      const pageBuilder = createByIdentityMap[nodeIdentity](createPage);
+      pageBuilder(edge);
+    } catch (e) {
+      console.log(e);
+      console.log(`
             ident: ${nodeIdentity} does not belong to a function
 
             ${frontmatter ? JSON.stringify(edge.node) : 'no frontmatter'}
 
 
             `);
-          }
-        });
-
-        return null;
-      })
-    );
+    }
   });
 };
 
@@ -298,15 +269,6 @@ exports.onCreateBabelConfig = ({ actions }) => {
   actions.setBabelPlugin({
     name: '@babel/plugin-proposal-export-default-from'
   });
-  actions.setBabelPlugin({
-    name: 'babel-plugin-transform-imports',
-    options: {
-      '@freecodecamp/react-bootstrap': {
-        transform: '@freecodecamp/react-bootstrap/lib/${member}',
-        preventFullImport: true
-      }
-    }
-  });
 };
 
 exports.onCreatePage = async ({ page, actions }) => {
@@ -330,15 +292,21 @@ exports.createSchemaCustomization = ({ actions }) => {
       challenge: Challenge
     }
     type Challenge {
-      audioPath: String
+      blockType: String
+      blockLayout: String
       challengeFiles: [FileContents]
+      chapter: String
+      explanation: String
       notes: String
       url: String
       assignments: [String]
       prerequisites: [PrerequisiteChallenge]
+      module: String
       msTrophyId: String
       fillInTheBlank: FillInTheBlank
       scene: Scene
+      transcript: String
+      quizzes: [Quiz]
     }
     type FileContents {
       fileKey: String
@@ -399,6 +367,14 @@ exports.createSchemaCustomization = ({ actions }) => {
       x: Float
       y: Float
       z: Float
+    }
+    type Quiz {
+      questions: [QuizQuestion]
+    }
+    type QuizQuestion {
+      text: String
+      distractors: [String]
+      answer: String
     }
   `;
   createTypes(typeDefs);

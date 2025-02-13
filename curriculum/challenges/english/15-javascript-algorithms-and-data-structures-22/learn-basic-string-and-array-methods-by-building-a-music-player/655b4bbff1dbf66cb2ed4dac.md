@@ -1,8 +1,8 @@
 ---
 id: 655b4bbff1dbf66cb2ed4dac
-title: Step 88
+title: Step 97
 challengeType: 0
-dashedName: step-88
+dashedName: step-97
 ---
 
 # --description--
@@ -14,13 +14,13 @@ Use an `if` statement to check if `nextSongExists` exists, then call the `playNe
 You should create an `if` statement with the condition `nextSongExists`.
 
 ```js
-assert.match(code, /if\s*\(nextSongExists\)\s*\{\s*/)
+assert.match(code, /if\s*\(\s*nextSongExists\s*\)\s*\{\s*/)
 ```
 
 You should call the `playNextSong` function inside your `if` statement.
 
 ```js
-assert.match(code, /if\s*\(nextSongExists\)\s*\{\s*playNextSong\(\);?\s*\}/)
+assert.match(code, /if\s*\(\s*nextSongExists\s*\)\s*\{\s*playNextSong\(\s*\)\s*;?\s*\}/)
 ```
 
 # --seed--
@@ -64,7 +64,7 @@ assert.match(code, /if\s*\(nextSongExists\)\s*\{\s*playNextSong\(\);?\s*\}/)
         <div class="player-content">
           <div id="player-album-art">
             <img
-              src="https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/digital-drift.jpg"
+              src="https://cdn.freecodecamp.org/curriculum/js-music-player/digital-drift.jpg"
               alt="song cover art"
             />
           </div>
@@ -536,35 +536,35 @@ const allSongs = [
     title: "Hello World",
     artist: "Rafael",
     duration: "0:23",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/hello-world.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/hello-world.mp3",
   },
   {
     id: 1,
     title: "In the Zone",
     artist: "Rafael",
     duration: "0:11",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/in-the-zone.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/in-the-zone.mp3",
   },
   {
     id: 2,
     title: "Camper Cat",
     artist: "Rafael",
     duration: "0:21",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/camper-cat.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/camper-cat.mp3",
   },
   {
     id: 3,
     title: "Electronic",
     artist: "Rafael",
     duration: "0:15",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/electronic.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/electronic.mp3",
   },
   {
     id: 4,
     title: "Sailing Away",
     artist: "Rafael",
     duration: "0:22",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/sailing-away.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/sailing-away.mp3",
   },
 ];
 
@@ -647,25 +647,6 @@ const deleteSong = (id) => {
   highlightCurrentSong(); 
   setPlayButtonAccessibleText(); 
 
-  if (userData?.songs.length === 0) {
-    const resetButton = document.createElement("button");
-    const resetText = document.createTextNode("Reset Playlist");
-
-    resetButton.id = "reset";
-    resetButton.ariaLabel = "Reset playlist";
-    resetButton.appendChild(resetText);
-    playlistSongs.appendChild(resetButton);
-
-    resetButton.addEventListener("click", () => {
-      userData.songs = [...allSongs];
-
-      renderSongs(userData?.songs); 
-      setPlayButtonAccessibleText();
-      resetButton.remove();
-    });
-
-  }
-
 };
 
 const setPlayerDisplay = () => {
@@ -711,6 +692,26 @@ const renderSongs = (array) => {
     .join("");
 
   playlistSongs.innerHTML = songsHTML;
+
+  if (userData?.songs.length === 0) {
+    const resetButton = document.createElement("button");
+    const resetText = document.createTextNode("Reset Playlist");
+
+    resetButton.id = "reset";
+    resetButton.ariaLabel = "Reset playlist";
+    resetButton.appendChild(resetText);
+    playlistSongs.appendChild(resetButton);
+
+    resetButton.addEventListener("click", () => {
+      userData.songs = [...allSongs];
+
+      renderSongs(sortSongs()); 
+      setPlayButtonAccessibleText();
+      resetButton.remove();
+    });
+
+  };
+
 };
 
 const setPlayButtonAccessibleText = () => {
@@ -748,18 +749,22 @@ audio.addEventListener("ended", () => {
 --fcc-editable-region--
 });
 
-userData?.songs.sort((a,b) => {
-  if (a.title < b.title) {
-    return -1;
-  }
+const sortSongs = () => {
+  userData?.songs.sort((a,b) => {
+    if (a.title < b.title) {
+      return -1;
+    }
 
-  if (a.title > b.title) {
-    return 1;
-  }
+    if (a.title > b.title) {
+      return 1;
+    }
 
-  return 0;
-});
+    return 0;
+  });
 
-renderSongs(userData?.songs);
+  return userData?.songs;
+};
+
+renderSongs(sortSongs());
 setPlayButtonAccessibleText();
 ```

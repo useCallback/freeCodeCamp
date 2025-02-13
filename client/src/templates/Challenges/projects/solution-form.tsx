@@ -51,7 +51,7 @@ export class SolutionForm extends Component<SolutionFormProps> {
     ];
     const backEndProjectFields = [
       { name: 'solution', label: t('learn.solution-link') },
-      { name: 'githubLink', label: t('learn.github-link') }
+      { name: 'githubLink', label: t('learn.source-code-link') }
     ];
 
     const buttonCopy = t('learn.i-completed');
@@ -63,7 +63,8 @@ export class SolutionForm extends Component<SolutionFormProps> {
       },
       required: ['solution'],
       isEditorLinkAllowed: false,
-      isLocalLinkAllowed: false
+      isLocalLinkAllowed: false,
+      isSourceCodeLinkRequired: false
     };
 
     let formFields = solutionField;
@@ -80,12 +81,15 @@ export class SolutionForm extends Component<SolutionFormProps> {
       case challengeTypes.backend:
         formFields = solutionField;
         options.isLocalLinkAllowed = true;
-        solutionLink = solutionLink + 'https://project-name.camperbot.repl.co/';
+        solutionLink = solutionLink + 'https://3000-project-url.gitpod.io/';
         break;
 
       case challengeTypes.backEndProject:
         formFields = backEndProjectFields;
-        solutionLink = solutionLink + 'https://project-name.camperbot.repl.co/';
+        // options.required.push('githubLink');
+        options.isSourceCodeLinkRequired = true;
+        options.isLocalLinkAllowed = true;
+        solutionLink = solutionLink + 'https://3000-project-url.gitpod.io/';
         solutionFormID = 'back-end-form';
         break;
 
@@ -121,7 +125,7 @@ export class SolutionForm extends Component<SolutionFormProps> {
           ...options,
           placeholders: {
             solution: solutionLink,
-            githubLink: 'ex: https://github.com/camperbot/hello'
+            githubLink: 'ex: https://your-git-repo.url/files'
           }
         }}
         submit={this.handleSubmit}

@@ -4,8 +4,6 @@
   "dashedName": "json-apis-and-ajax",
   "helpCategory": "JavaScript",
   "order": 1,
-  "time": "2 hours",
-  "template": "",
   "required": [
     {
       "link": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css"
@@ -53,5 +51,6 @@
       "id": "587d7faf367417b2b2512be9",
       "title": "Post Data with the JavaScript XMLHttpRequest Method"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

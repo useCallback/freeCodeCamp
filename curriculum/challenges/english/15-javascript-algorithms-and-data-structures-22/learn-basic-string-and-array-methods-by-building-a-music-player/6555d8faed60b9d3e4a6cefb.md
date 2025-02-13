@@ -1,15 +1,15 @@
 ---
 id: 6555d8faed60b9d3e4a6cefb
-title: Step 63
+title: Step 72
 challengeType: 0
-dashedName: step-63
+dashedName: step-72
 ---
 
 # --description--
 
-Use `const` and arrow syntax to define a function called `setPlayButtonAccessibleText`. 
+To make the application more accessible, it is important that the play button describes the current song or the first song in the playlist. 
 
-This function will set the `aria-label` attribute to the current song, or to the first song in the playlist. And if the playlist is empty, it sets the `aria-label` to `"Play"`.
+Start by creating an empty arrow function called `setPlayButtonAccessibleText`.
 
 # --hints--
 
@@ -28,13 +28,13 @@ assert.isFunction(setPlayButtonAccessibleText)
 Your `setPlayButtonAccessibleText` function should use an arrow syntax.
 
 ```js
-assert.match(code, /const\s+setPlayButtonAccessibleText\s*=\s*\(\)\s*=>\s*/)
+assert.match(code, /const\s+setPlayButtonAccessibleText\s*=\s*\(\s*\)\s*=>\s*/)
 ```
 
 Your `setPlayButtonAccessibleText` function  should be empty.
 
 ```js
-assert.match(code, /const\s+setPlayButtonAccessibleText\s*=\s*\(\)\s*=>\s*\{\n?\s*?\};?/)
+assert.match(code, /const\s+setPlayButtonAccessibleText\s*=\s*\(\s*\)\s*=>\s*\{\n?\s*?\}\s*;?/)
 ```
 
 # --seed--
@@ -78,7 +78,7 @@ assert.match(code, /const\s+setPlayButtonAccessibleText\s*=\s*\(\)\s*=>\s*\{\n?\
         <div class="player-content">
           <div id="player-album-art">
             <img
-              src="https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/quincy-larson-album-art.jpg"
+              src="https://cdn.freecodecamp.org/curriculum/js-music-player/quincy-larson-album-art.jpg"
               alt="song cover art"
             />
           </div>
@@ -550,70 +550,70 @@ const allSongs = [
     title: "Scratching The Surface",
     artist: "Quincy Larson",
     duration: "4:25",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/scratching-the-surface.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/scratching-the-surface.mp3",
   },
   {
     id: 1,
     title: "Can't Stay Down",
     artist: "Quincy Larson",
     duration: "4:15",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/cant-stay-down.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/can't-stay-down.mp3",
   },
   {
     id: 2,
     title: "Still Learning",
     artist: "Quincy Larson",
     duration: "3:51",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/still-learning.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/still-learning.mp3",
   },
   {
     id: 3,
     title: "Cruising for a Musing",
     artist: "Quincy Larson",
     duration: "3:34",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/cruising-for-a-musing.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/cruising-for-a-musing.mp3",
   },
   {
     id: 4,
     title: "Never Not Favored",
     artist: "Quincy Larson",
     duration: "3:35",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/never-not-favored.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/never-not-favored.mp3",
   },
   {
     id: 5,
     title: "From the Ground Up",
     artist: "Quincy Larson",
     duration: "3:12",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/from-the-ground-up.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/from-the-ground-up.mp3",
   },
   {
     id: 6,
     title: "Walking on Air",
     artist: "Quincy Larson",
     duration: "3:25",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/walking-on-air.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/walking-on-air.mp3",
   },
   {
     id: 7,
     title: "Can't Stop Me. Can't Even Slow Me Down.",
     artist: "Quincy Larson",
     duration: "3:52",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/cant-stop-me-cant-even-slow-me-down.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/cant-stop-me-cant-even-slow-me-down.mp3",
   },
   {
     id: 8,
     title: "The Surest Way Out is Through",
     artist: "Quincy Larson",
     duration: "3:10",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/the-surest-way-out-is-through.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/the-surest-way-out-is-through.mp3",
   },
   {
     id: 9,
     title: "Chasing That Feeling",
     artist: "Quincy Larson",
     duration: "2:43",
-    src: "https://s3.amazonaws.com/org.freecodecamp.mp3-player-project/chasing-that-feeling.mp3",
+    src: "https://cdn.freecodecamp.org/curriculum/js-music-player/chasing-that-feeling.mp3",
   },
 ];
 
@@ -735,17 +735,21 @@ nextButton.addEventListener("click", playNextSong);
 
 previousButton.addEventListener("click", playPreviousSong);
 
-userData?.songs.sort((a,b) => {
-  if (a.title < b.title) {
-    return -1;
-  }
+const sortSongs = () => {
+  userData?.songs.sort((a,b) => {
+    if (a.title < b.title) {
+      return -1;
+    }
 
-  if (a.title > b.title) {
-    return 1;
-  }
+    if (a.title > b.title) {
+      return 1;
+    }
 
-  return 0;
-});
+    return 0;
+  });
 
-renderSongs(userData?.songs);
+  return userData?.songs;
+};
+
+renderSongs(sortSongs());
 ```

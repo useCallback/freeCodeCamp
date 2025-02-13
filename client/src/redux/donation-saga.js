@@ -8,7 +8,7 @@ import {
   takeEvery,
   takeLeading
 } from 'redux-saga/effects';
-
+import callGA from '../analytics/call-ga';
 import {
   addDonation,
   postChargeStripe,
@@ -18,6 +18,10 @@ import {
 import { stringifyDonationEvents } from '../utils/analytics-strings';
 import { stripe } from '../utils/stripe';
 import { PaymentProvider } from '../../../shared/config/donation-settings';
+import {
+  getSessionChallengeData,
+  saveCurrentCount
+} from '../utils/session-storage';
 import { actionTypes as appTypes } from './action-types';
 import {
   openDonationModal,
@@ -25,8 +29,6 @@ import {
   postChargeProcessing,
   postChargeError,
   preventBlockDonationRequests,
-  setCompletionCountWhenShownProgressModal,
-  executeGA,
   updateCardError,
   updateCardRedirecting
 } from './actions';
@@ -34,7 +36,8 @@ import {
   isDonatingSelector,
   recentlyClaimedBlockSelector,
   shouldRequestDonationSelector,
-  isSignedInSelector
+  isSignedInSelector,
+  completedChallengesSelector
 } from './selectors';
 
 const defaultDonationErrorMessage = i18next.t('donate.error-2');
@@ -42,15 +45,25 @@ const updateCardErrorMessage = i18next.t('donate.error-3');
 
 function* showDonateModalSaga() {
   let shouldRequestDonation = yield select(shouldRequestDonationSelector);
-  if (shouldRequestDonation) {
+  const recentlyClaimedBlock = yield select(recentlyClaimedBlockSelector);
+  const MODAL_SHOWN_KEY = 'modalShownTimestamp';
+  const modalShownTimestamp = sessionStorage.getItem(MODAL_SHOWN_KEY);
+  const isModalRecentlyShown = Date.now() - modalShownTimestamp < 20000;
+  if (
+    shouldRequestDonation &&
+    recentlyClaimedBlock &&
+    recentlyClaimedBlock.superBlock === 'full-stack-developer'
+  ) {
+    yield put(preventBlockDonationRequests());
+  } else if (shouldRequestDonation || isModalRecentlyShown) {
     yield delay(200);
-    const recentlyClaimedBlock = yield select(recentlyClaimedBlockSelector);
     yield put(openDonationModal());
+    sessionStorage.setItem(MODAL_SHOWN_KEY, Date.now());
     yield take(appTypes.closeDonationModal);
     if (recentlyClaimedBlock) {
       yield put(preventBlockDonationRequests());
     } else {
-      yield put(setCompletionCountWhenShownProgressModal());
+      yield call(saveCurrentCount);
     }
   }
 }
@@ -67,6 +80,7 @@ export function* postChargeSaga({
   }
 }) {
   try {
+    const isSignedIn = yield select(isSignedInSelector);
     if (paymentProvider !== PaymentProvider.Patreon) {
       yield put(postChargeProcessing());
     }
@@ -95,9 +109,9 @@ export function* postChargeSaga({
       }
     } else if (paymentProvider === PaymentProvider.Paypal) {
       // If the user is signed in and the payment goes through call api
-      let isSignedIn = yield select(isSignedInSelector);
       // look into skip add donation
       // what to do with "data" that comes through
+
       if (isSignedIn) yield call(addDonation, { amount, duration });
     }
     if (
@@ -110,17 +124,25 @@ export function* postChargeSaga({
       yield put(postChargeComplete());
       yield call(setDonationCookie);
     }
-    yield put(
-      executeGA({
-        event:
-          paymentProvider === PaymentProvider.Patreon
-            ? 'donation_related'
-            : 'donation',
+    if (paymentProvider === PaymentProvider.Patreon) {
+      yield call(callGA, {
+        event: 'donation_related',
+        action: stringifyDonationEvents(paymentContext, paymentProvider)
+      });
+    } else {
+      const completedChallenges = yield select(completedChallengesSelector);
+      const sessionChallengeData = yield call(getSessionChallengeData);
+      const completedChallengesInSession = sessionChallengeData.currentCount;
+      yield call(callGA, {
+        event: 'donation',
         action: stringifyDonationEvents(paymentContext, paymentProvider),
         duration,
-        amount
-      })
-    );
+        amount,
+        completed_challenges: completedChallenges.length,
+        completed_challenges_session: completedChallengesInSession,
+        isSignedIn
+      });
+    }
   } catch (error) {
     const err =
       error.response && error.response.data

@@ -23,9 +23,7 @@ const apiMicroBase =
   '/learn/back-end-development-and-apis/back-end-development-and-apis-projects';
 const qaBase = '/learn/quality-assurance/quality-assurance-projects';
 const infoSecBase = '/learn/information-security/information-security-projects';
-const sciCompPyBase =
-  '/learn/scientific-computing-with-python/' +
-  'scientific-computing-with-python-projects';
+const sciCompPyBase = '/learn/scientific-computing-with-python';
 const dataAnalysisPyBase =
   '/learn/data-analysis-with-python/data-analysis-with-python-projects';
 const machineLearningPyBase =
@@ -34,9 +32,9 @@ const collegeAlgebraPyBase = '/learn/college-algebra-with-python';
 const takeHomeBase = '/learn/coding-interview-prep/take-home-projects';
 const foundationalCSharpBase =
   '/learn/foundational-c-sharp-with-microsoft/foundational-c-sharp-with-microsoft-certification-exam';
-const upcomingPythonBase = '/learn/upcoming-python';
-const exampleCertBase = '/learn/example-certification';
+const fullStackDeveloperBase = '/learn/full-stack-developer';
 const a2EnglishBase = '/learn/a2-english-for-developers';
+const b1EnglishBase = '/learn/b1-english-for-developers';
 const legacyFrontEndBase = feLibsBase;
 const legacyFrontEndResponsiveBase = responsiveWebBase;
 const legacyFrontEndTakeHomeBase = takeHomeBase;
@@ -100,7 +98,7 @@ const allStandardCerts = [
   },
   {
     id: '658180220947283cdc0689ce',
-    title: 'JavaScript Algorithms and Data Structures (Beta)',
+    title: 'JavaScript Algorithms and Data Structures',
     certSlug: Certification.JsAlgoDataStructNew,
     projects: [
       {
@@ -328,31 +326,31 @@ const allStandardCerts = [
       {
         id: '5e44412c903586ffb414c94c',
         title: 'Arithmetic Formatter',
-        link: `${sciCompPyBase}/arithmetic-formatter`,
+        link: `${sciCompPyBase}/build-an-arithmetic-formatter-project/build-an-arithmetic-formatter-project`,
         certSlug: Certification.SciCompPy
       },
       {
         id: '5e444136903586ffb414c94d',
         title: 'Time Calculator',
-        link: `${sciCompPyBase}/time-calculator`,
+        link: `${sciCompPyBase}/build-a-time-calculator-project/build-a-time-calculator-project`,
         certSlug: Certification.SciCompPy
       },
       {
         id: '5e44413e903586ffb414c94e',
         title: 'Budget App',
-        link: `${sciCompPyBase}/budget-app`,
+        link: `${sciCompPyBase}/build-a-budget-app-project/build-a-budget-app-project`,
         certSlug: Certification.SciCompPy
       },
       {
         id: '5e444147903586ffb414c94f',
         title: 'Polygon Area Calculator',
-        link: `${sciCompPyBase}/polygon-area-calculator`,
+        link: `${sciCompPyBase}/build-a-polygon-area-calculator-project/build-a-polygon-area-calculator-project`,
         certSlug: Certification.SciCompPy
       },
       {
         id: '5e44414f903586ffb414c950',
         title: 'Probability Calculator',
-        link: `${sciCompPyBase}/probability-calculator`,
+        link: `${sciCompPyBase}/build-a-probability-calculator-project/build-a-probability-calculator-project`,
         certSlug: Certification.SciCompPy
       }
     ]
@@ -576,7 +574,7 @@ const allStandardCerts = [
   },
   {
     id: '561abd10cb81ac38a17513bc',
-    title: 'JavaScript Algorithms and Data Structures',
+    title: 'Legacy JavaScript Algorithms and Data Structures',
     certSlug: Certification.JsAlgoDataStruct,
     projects: [
       {
@@ -801,27 +799,14 @@ const allStandardCerts = [
   // Upcoming Certifications
   {
     id: '64514fda6c245de4d11eb7bb',
-    title: 'Example Certification',
-    certSlug: 'example-certification-v8',
+    title: 'Certified Full Stack Developer',
+    certSlug: Certification.FullStackDeveloper,
     projects: [
       {
         id: '645147516c245de4d11eb7ba',
-        title: 'Certification Exam',
-        link: `${exampleCertBase}/example-certification-exam`,
-        certSlug: 'example-certification-v8'
-      }
-    ]
-  },
-  {
-    id: '64afc4e8f3b37856e035b85f',
-    title: 'Upcoming Python Certification',
-    certSlug: Certification.UpcomingPython,
-    projects: [
-      {
-        id: '64afc37bf3b37856e035b85e',
-        title: 'Upcoming Python Project',
-        link: `${upcomingPythonBase}/upcoming-python-project`,
-        certSlug: Certification.UpcomingPython
+        title: 'Certified Full Stack Developer Exam',
+        link: `${fullStackDeveloperBase}/exam-certified-full-stack-developer/exam-certified-full-stack-developer`,
+        certSlug: Certification.FullStackDeveloper
       }
     ]
   },
@@ -832,9 +817,22 @@ const allStandardCerts = [
     projects: [
       {
         id: '651dd3e06ffb500e3f2ce478',
-        title: 'Challenge 1',
-        link: `${a2EnglishBase}/learn-greetings-in-your-first-day-at-the-office/challenge-1`,
+        title: 'A2 English for Developers Certification Exam',
+        link: `${a2EnglishBase}/a2-english-for-developers-certification-exam/a2-english-for-developers-certification-exam`,
         certSlug: Certification.A2English
+      }
+    ]
+  },
+  {
+    id: '66607e53317411dd5e8aae21',
+    title: 'B1 English for Developers',
+    certSlug: Certification.B1English,
+    projects: [
+      {
+        id: '66607e5b317411dd5e8aae22',
+        title: "Dialogue 1: I'm Tom",
+        link: `${b1EnglishBase}/learn-how-to-describe-places-and-events/dialogue-1-im-tom`,
+        certSlug: Certification.B1English
       }
     ]
   }
@@ -883,29 +881,19 @@ const liveCerts = showUpcomingChanges
   : [...currentCerts, ...legacyCerts, fullstackCert];
 
 type CertsToProjects = Record<
-  (typeof allStandardCerts)[number]['title'],
+  (typeof allStandardCerts)[number]['certSlug'],
   (typeof allStandardCerts)[number]['projects']
 >;
 
 const certsToProjects = allStandardCerts.reduce((acc, curr) => {
   return {
     ...acc,
-    [curr.title]: curr.projects
+    [curr.certSlug]: curr.projects
   };
 }, {} as CertsToProjects);
-
-const currentCertTitles = currentCerts.map(({ title }) => title);
-const legacyCertTitles = legacyCerts.map(({ title }) => title);
-const upcomingCertTitles = upcomingCerts.map(({ title }) => title);
 
 export type CertTitle =
   | (typeof liveCerts)[number]['title']
   | 'Legacy Full Stack';
 
-export {
-  currentCertTitles,
-  legacyCertTitles,
-  upcomingCertTitles,
-  liveCerts,
-  certsToProjects
-};
+export { liveCerts, certsToProjects };

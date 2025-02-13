@@ -1,5 +1,8 @@
+import { execSync } from 'child_process';
+
 import { test, expect } from '@playwright/test';
 import translations from '../client/i18n/locales/english/translations.json';
+import { alertToBeVisible } from './utils/alerts';
 
 test.beforeEach(async ({ page }) => {
   await page.goto(
@@ -8,6 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('Link MS user component (signed-out user)', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
   test('should display the page content with a signin CTA', async ({
     page
   }) => {
@@ -38,7 +42,9 @@ test.describe('Link MS user component (signed-out user)', () => {
 });
 
 test.describe('Link MS user component (signed-in user)', () => {
-  test.use({ storageState: 'playwright/.auth/certified-user.json' });
+  test.afterEach(() => {
+    execSync('node ./tools/scripts/seed/seed-ms-username');
+  });
 
   test("should recognize the user's MS account", async ({ page }) => {
     await expect(
@@ -48,34 +54,21 @@ test.describe('Link MS user component (signed-in user)', () => {
       })
     ).toBeVisible();
 
-    await expect(
-      page.getByText(
-        'The Microsoft account with username "certifieduser" is currently linked to your freeCodeCamp account. If this is not your Microsoft username, remove the link.'
-      )
-    ).toBeVisible();
+    await expect(page.locator('main')).toHaveText(
+      /The Microsoft account with username "certifieduser" is currently linked to your freeCodeCamp account\. If this is not your Microsoft username, remove the link\./
+    );
   });
 
   test('should allow the user to unlink their MS account and display a form for re-link', async ({
     page
   }) => {
-    // Intercept the endpoint to prevent `msUsername` from being deleted
-    // as the deletion will cause subsequent tests to fail
-    await page.route('*/**/user/ms-username', async route => {
-      const json = { msUsername: null };
-      await route.fulfill({ json });
-    });
-
     const unlinkButton = page.getByRole('button', {
       name: translations.buttons['unlink-account']
     });
     await expect(unlinkButton).toBeVisible();
     await unlinkButton.click();
 
-    await expect(
-      page
-        .getByRole('alert')
-        .filter({ hasText: translations.flash.ms.transcript.unlinked })
-    ).toBeVisible();
+    await alertToBeVisible(page, translations.flash.ms.transcript.unlinked);
 
     await expect(
       page.getByRole('heading', {

@@ -1,4 +1,4 @@
-import { SuperBlocks } from '../../shared/config/superblocks';
+import { SuperBlocks } from '../../shared/config/curriculum';
 
 /**
  * Certifications are not equivalent to superblocks. Each superblock corresponds
@@ -26,8 +26,9 @@ export enum Certification {
   CollegeAlgebraPy = 'college-algebra-with-python-v8',
   FoundationalCSharp = 'foundational-c-sharp-with-microsoft',
   // Upcoming certifications
-  UpcomingPython = 'upcoming-python-v8',
+  FullStackDeveloper = 'full-stack-developer-v9',
   A2English = 'a2-english-for-developers-v8',
+  B1English = 'b1-english-for-developers-v8',
   // Legacy certifications
   LegacyFrontEnd = 'legacy-front-end',
   JsAlgoDataStruct = 'javascript-algorithms-and-data-structures',
@@ -74,8 +75,9 @@ export const legacyFullStackCertification = [
 // "Upcoming" certifications are standard certifications that are not live unless
 // showUpcomingChanges is true.
 export const upcomingCertifications = [
-  Certification.UpcomingPython,
-  Certification.A2English
+  Certification.FullStackDeveloper,
+  Certification.A2English,
+  Certification.B1English
 ] as const;
 
 export const certTypes = {
@@ -97,7 +99,6 @@ export const certTypes = {
   relationalDatabaseV8: 'isRelationalDatabaseCertV8',
   collegeAlgebraPyV8: 'isCollegeAlgebraPyCertV8',
   foundationalCSharpV8: 'isFoundationalCSharpCertV8',
-  upcomingPythonV8: 'isUpcomingPythonCertV8',
   jsAlgoDataStructV8: 'isJsAlgoDataStructCertV8'
 } as const;
 
@@ -120,7 +121,6 @@ export const certIds = {
   relationalDatabaseV8Id: '606243f50267e718b1e755f4',
   collegeAlgebraPyV8Id: '61531b20cc9dfa2741a5b800',
   foundationalCSharpV8Id: '647f7da207d29547b3bee1ba',
-  upcomingPythonV8Id: '64afc4e8f3b37856e035b85f',
   jsAlgoDataStructV8Id: '658180220947283cdc0689ce'
 };
 
@@ -143,7 +143,6 @@ export const completionHours = {
   [certTypes.relationalDatabaseV8]: 300,
   [certTypes.collegeAlgebraPyV8]: 300,
   [certTypes.foundationalCSharpV8]: 300,
-  [certTypes.upcomingPythonV8]: 300,
   [certTypes.jsAlgoDataStructV8]: 300
 };
 
@@ -169,10 +168,9 @@ export const certSlugTypeMap = {
   [Certification.MachineLearningPy]: certTypes.machineLearningPyV7,
   [Certification.RelationalDb]: certTypes.relationalDatabaseV8,
   [Certification.CollegeAlgebraPy]: certTypes.collegeAlgebraPyV8,
-  [Certification.FoundationalCSharp]: certTypes.foundationalCSharpV8,
+  [Certification.FoundationalCSharp]: certTypes.foundationalCSharpV8
 
   // upcoming
-  [Certification.UpcomingPython]: certTypes.upcomingPythonV8
 };
 
 export const superBlockCertTypeMap = {
@@ -201,10 +199,9 @@ export const superBlockCertTypeMap = {
 
   // post-modern
   // TODO: use enum
-  [SuperBlocks.RespWebDesignNew]: certTypes.respWebDesign,
+  [SuperBlocks.RespWebDesignNew]: certTypes.respWebDesign
 
   // upcoming
-  [SuperBlocks.UpcomingPython]: certTypes.upcomingPythonV8
 };
 
 export const certTypeIdMap = {
@@ -226,7 +223,6 @@ export const certTypeIdMap = {
   [certTypes.relationalDatabaseV8]: certIds.relationalDatabaseV8Id,
   [certTypes.collegeAlgebraPyV8]: certIds.collegeAlgebraPyV8Id,
   [certTypes.foundationalCSharpV8]: certIds.foundationalCSharpV8Id,
-  [certTypes.upcomingPythonV8]: certIds.upcomingPythonV8Id,
   [certTypes.jsAlgoDataStructV8]: certIds.jsAlgoDataStructV8Id
 };
 
@@ -238,7 +234,8 @@ export const certTypeTitleMap = {
   [certTypes.fullStack]: 'Legacy Full Stack',
   [certTypes.respWebDesign]: 'Responsive Web Design',
   [certTypes.frontEndDevLibs]: 'Front End Development Libraries',
-  [certTypes.jsAlgoDataStruct]: 'JavaScript Algorithms and Data Structures',
+  [certTypes.jsAlgoDataStruct]:
+    'Legacy JavaScript Algorithms and Data Structures',
   [certTypes.dataVis2018]: 'Data Visualization',
   [certTypes.apisMicroservices]: 'Back End Development and APIs',
   [certTypes.qaV7]: 'Quality Assurance',
@@ -249,9 +246,62 @@ export const certTypeTitleMap = {
   [certTypes.relationalDatabaseV8]: 'Relational Database',
   [certTypes.collegeAlgebraPyV8]: 'College Algebra with Python',
   [certTypes.foundationalCSharpV8]: 'Foundational C# with Microsoft',
-  [certTypes.upcomingPythonV8]: 'Upcoming Python',
-  [certTypes.jsAlgoDataStructV8]:
-    'JavaScript Algorithms and Data Structures (Beta)'
+  [certTypes.jsAlgoDataStructV8]: 'JavaScript Algorithms and Data Structures'
+};
+
+export const superBlockToCertMap: {
+  [key in SuperBlocks]: Certification | null;
+} = {
+  [SuperBlocks.RespWebDesign]: Certification.RespWebDesign,
+  [SuperBlocks.JsAlgoDataStructNew]: Certification.JsAlgoDataStructNew,
+  [SuperBlocks.FrontEndDevLibs]: Certification.FrontEndDevLibs,
+  [SuperBlocks.DataVis]: Certification.DataVis,
+  [SuperBlocks.RelationalDb]: Certification.RelationalDb,
+  [SuperBlocks.BackEndDevApis]: Certification.BackEndDevApis,
+  [SuperBlocks.QualityAssurance]: Certification.QualityAssurance,
+  [SuperBlocks.SciCompPy]: Certification.SciCompPy,
+  [SuperBlocks.DataAnalysisPy]: Certification.DataAnalysisPy,
+  [SuperBlocks.InfoSec]: Certification.InfoSec,
+  [SuperBlocks.MachineLearningPy]: Certification.MachineLearningPy,
+  [SuperBlocks.CollegeAlgebraPy]: Certification.CollegeAlgebraPy,
+  [SuperBlocks.FoundationalCSharp]: Certification.FoundationalCSharp,
+  [SuperBlocks.RespWebDesignNew]: Certification.RespWebDesign,
+  [SuperBlocks.JsAlgoDataStruct]: Certification.JsAlgoDataStruct,
+  [SuperBlocks.FullStackDeveloper]: Certification.FullStackDeveloper,
+  [SuperBlocks.A2English]: Certification.A2English,
+  [SuperBlocks.B1English]: Certification.B1English,
+  [SuperBlocks.PythonForEverybody]: null,
+  [SuperBlocks.CodingInterviewPrep]: null,
+  [SuperBlocks.ProjectEuler]: null,
+  [SuperBlocks.TheOdinProject]: null,
+  [SuperBlocks.RosettaCode]: null
+};
+
+export type CertSlug = (typeof Certification)[keyof typeof Certification];
+
+export const linkedInCredentialIds = {
+  [Certification.LegacyFrontEnd]: 'lfe',
+  [Certification.LegacyBackEnd]: 'lbe',
+  [Certification.LegacyDataVis]: 'ldv',
+  [Certification.LegacyInfoSecQa]: 'lisaqa',
+  [Certification.LegacyFullStack]: 'lfs',
+  [Certification.RespWebDesign]: 'rwd',
+  [Certification.FrontEndDevLibs]: 'fedl',
+  [Certification.JsAlgoDataStruct]: 'ljaads',
+  [Certification.DataVis]: 'dv',
+  [Certification.BackEndDevApis]: 'bedaa',
+  [Certification.QualityAssurance]: 'qa',
+  [Certification.InfoSec]: 'is',
+  [Certification.SciCompPy]: 'scwp',
+  [Certification.DataAnalysisPy]: 'dawp',
+  [Certification.MachineLearningPy]: 'mlwp',
+  [Certification.RelationalDb]: 'rd',
+  [Certification.CollegeAlgebraPy]: 'cawp',
+  [Certification.FoundationalCSharp]: 'fcswm',
+  [Certification.FullStackDeveloper]: 'fsd',
+  [Certification.JsAlgoDataStructNew]: 'jaads',
+  [Certification.A2English]: 'a2efd',
+  [Certification.B1English]: 'b1efd'
 };
 
 export const oldDataVizId = '561add10cb82ac38a17513b3';

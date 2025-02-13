@@ -3,11 +3,7 @@
   "isUpcomingChange": false,
   "dashedName": "learn-conversation-starters-in-the-break-room",
   "order": 2,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "a2-english-for-developers",
-  "isBeta": true,
   "challengeOrder": [
     {
       "id": "651dd5ae6ffb500e3f2ce47c",
@@ -538,5 +534,6 @@
       "title": "Task 127"
     }
   ],
-  "helpCategory": "English"
+  "helpCategory": "English",
+  "blockLayout": "legacy-challenge-grid"
 }

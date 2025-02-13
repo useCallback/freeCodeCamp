@@ -7,7 +7,6 @@ const blockSchema = Joi.object({}).keys({
     isUpcomingChange: Joi.bool(),
     usesMultifileEditor: Joi.bool().optional(),
     hasEditableBoundaries: Joi.bool().optional(),
-    isBeta: Joi.bool().optional(),
     dashedName: Joi.string(),
     helpCategory: Joi.valid(
       'JavaScript',
@@ -25,6 +24,7 @@ const blockSchema = Joi.object({}).keys({
     template: Joi.string().allow(''),
     required: Joi.array(),
     superBlock: Joi.string(),
+    blockLayout: Joi.string(),
     challengeOrder: Joi.array().items(
       Joi.object({}).keys({
         id: Joi.string(),

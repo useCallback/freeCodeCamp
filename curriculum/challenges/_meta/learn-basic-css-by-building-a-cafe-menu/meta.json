@@ -6,9 +6,6 @@
   "dashedName": "learn-basic-css-by-building-a-cafe-menu",
   "helpCategory": "HTML-CSS",
   "order": 1,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "2022/responsive-web-design",
   "challengeOrder": [
     {
@@ -375,5 +372,6 @@
       "id": "5f47fe7e31980053a8d4403b",
       "title": "Step 91"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-grid"
 }

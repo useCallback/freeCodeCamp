@@ -1,12 +1,22 @@
 /* This module's job is to parse the database output and prepare it for
 serialization */
-import { ProfileUI, CompletedChallenge, ExamResults } from '@prisma/client';
+import {
+  ProfileUI,
+  CompletedChallenge,
+  ExamResults,
+  type Survey
+} from '@prisma/client';
 import _ from 'lodash';
 
 type NullToUndefined<T> = T extends null ? undefined : T;
+type NullToFalse<T> = T extends null ? false : T;
 
 type NoNullProperties<T> = {
   [P in keyof T]: NullToUndefined<T[P]>;
+};
+
+type DefaultToFalse<T> = {
+  [P in keyof T]: NullToFalse<T[P]>;
 };
 
 /**
@@ -73,7 +83,7 @@ type NormalizedFile = {
   path?: string;
 };
 
-type NormalizedChallenge = {
+export type NormalizedChallenge = {
   challengeType?: number;
   completedDate: number;
   files: NormalizedFile[];
@@ -106,3 +116,36 @@ export const normalizeChallenges = (
 
   return noNullPath;
 };
+
+type NormalizedSurvey = {
+  title: string;
+  responses: {
+    question: string;
+    response: string;
+  }[];
+};
+
+/**
+ * Remove the extra properties from the SurveyResults array.
+ *
+ * @param surveyResults The SurveyResults array.
+ * @returns The input without the id and userid.
+ */
+export const normalizeSurveys = (
+  surveyResults: Survey[]
+): NormalizedSurvey[] => {
+  return surveyResults.map(survey => {
+    const { title, responses } = survey;
+    return { title, responses };
+  });
+};
+
+/**
+ * Replace null flags with false.
+ * @param flags Object with nullable boolean flags.
+ * @returns Same object with boolean flags, defaulting to false.
+ */
+export const normalizeFlags = <T extends Record<string, boolean | null>>(
+  flags: T
+): DefaultToFalse<T> =>
+  _.mapValues(flags, flag => flag ?? false) as DefaultToFalse<T>;

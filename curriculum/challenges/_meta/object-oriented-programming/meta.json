@@ -4,9 +4,6 @@
   "dashedName": "object-oriented-programming",
   "helpCategory": "JavaScript",
   "order": 6,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "javascript-algorithms-and-data-structures",
   "challengeOrder": [
     {
@@ -113,5 +110,6 @@
       "id": "587d7db2367417b2b2512b8c",
       "title": "Use an IIFE to Create a Module"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

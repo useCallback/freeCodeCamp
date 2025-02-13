@@ -1,9 +1,9 @@
 const path = require('path');
 
 const {
-  generateChallengeCreator,
   hasEnglishSource,
-  createCommentMap
+  createCommentMap,
+  getChallengesForLang
 } = require('./get-challenges');
 
 const EXISTING_CHALLENGE_PATH = 'challenge.md';
@@ -12,25 +12,11 @@ const MISSING_CHALLENGE_PATH = 'no/challenge.md';
 const basePath = '__fixtures__';
 
 describe('create non-English challenge', () => {
-  describe('generateChallengeCreator', () => {
-    describe('createChallenge', () => {
-      it('throws if lang is an invalid language', async () => {
-        const createChallenge = generateChallengeCreator(basePath, 'notlang');
-        await expect(
-          createChallenge(EXISTING_CHALLENGE_PATH, {})
-        ).rejects.toThrow('notlang is not a accepted language');
-      });
-      it('throws an error if the source challenge is missing', async () => {
-        const createChallenge = generateChallengeCreator(basePath, 'chinese');
-        await expect(
-          createChallenge(MISSING_CHALLENGE_PATH, {})
-        ).rejects.toThrow(
-          `Missing English challenge for
-${MISSING_CHALLENGE_PATH}
-It should be in
-`
-        );
-      });
+  describe('getChallengesForLang', () => {
+    it('throws if lang is an invalid language', async () => {
+      await expect(() => getChallengesForLang('notlang')).rejects.toThrow(
+        'notlang is not a accepted language'
+      );
     });
   });
   describe('hasEnglishSource', () => {
@@ -70,12 +56,14 @@ It should be in
     );
 
     it('returns an object', () => {
-      expect(typeof createCommentMap(dictionaryDir)).toBe('object');
+      expect(typeof createCommentMap(dictionaryDir, dictionaryDir)).toBe(
+        'object'
+      );
     });
 
     it('fallback to the untranslated string', () => {
       expect.assertions(2);
-      const commentMap = createCommentMap(incompleteDictDir);
+      const commentMap = createCommentMap(incompleteDictDir, incompleteDictDir);
       expect(commentMap['To be translated one'].spanish).toEqual(
         'Spanish translation one'
       );
@@ -92,7 +80,7 @@ It should be in
         'Not translated one',
         'Not translated two'
       ];
-      const map = createCommentMap(dictionaryDir);
+      const map = createCommentMap(dictionaryDir, dictionaryDir);
       expect(Object.keys(map)).toEqual(expect.arrayContaining(expectedIds));
 
       const mapValue = map['To be translated one'];
@@ -112,7 +100,7 @@ It should be in
         'Not translated one',
         'Not translated two'
       ];
-      const map = createCommentMap(dictionaryDir);
+      const map = createCommentMap(dictionaryDir, dictionaryDir);
       expect(Object.keys(map)).toEqual(expect.arrayContaining(expectedIds));
 
       const translatedOne = map['To be translated one'];

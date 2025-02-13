@@ -4,14 +4,12 @@
   "dashedName": "learn-quadratic-equations",
   "helpCategory": "Python",
   "order": 10,
-  "time": "",
-  "template": "",
-  "required": [],
   "superBlock": "college-algebra-with-python",
   "challengeOrder": [
     {
       "id": "6363d2429078df117ce4c400",
       "title": "Quadratics"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

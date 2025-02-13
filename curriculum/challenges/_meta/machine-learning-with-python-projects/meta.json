@@ -4,7 +4,6 @@
   "dashedName": "machine-learning-with-python-projects",
   "helpCategory": "Python",
   "order": 2,
-  "time": "150 hours",
   "superBlock": "machine-learning-with-python",
   "challengeOrder": [
     {
@@ -27,5 +26,6 @@
       "id": "5e46f8edac417301a38fb931",
       "title": "Neural Network SMS Text Classifier"
     }
-  ]
+  ],
+  "blockLayout": "project-list"
 }

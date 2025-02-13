@@ -11,16 +11,8 @@ dashedName: learn-how-javascript-assertions-work
 Working on these challenges will involve you writing your code using one of the following methods:
 
 - Clone <a href="https://github.com/freeCodeCamp/boilerplate-mochachai/" target="_blank" rel="noopener noreferrer nofollow">this GitHub repo</a> and complete these challenges locally.
-- Use <a href="https://replit.com/github/freeCodeCamp/boilerplate-mochachai" target="_blank" rel="noopener noreferrer nofollow">our Replit starter project</a> to complete these challenges.
+- Use <a href="https://gitpod.io/?autostart=true#https://github.com/freeCodeCamp/boilerplate-mochachai/" target="_blank" rel="noopener noreferrer nofollow">our Gitpod starter project</a> to complete these challenges. Learn <a href="https://forum.freecodecamp.org/t/how-to-use-gitpod-in-the-curriculum/668669#how-can-i-share-my-workspace-to-get-help-8" target="_blank" rel="noopener noreferrer nofollow">how to share your Gitpod workspace to get help</a>.
 - Use a site builder of your choice to complete the project. Be sure to incorporate all the files from our GitHub repo.
-
-If you use Replit, follow these steps to set up the project:
-
--   Start by importing the project on Replit. 
--   Next, you will see a `.replit` window. 
--   Select `Use run command` and click the `Done` button. 
-
-When you are done, make sure a working demo of your project is hosted somewhere public. Then submit the URL to it in the Solution Link field.
 
 # --instructions--
 
@@ -70,12 +62,3 @@ You should choose the correct method for the second assertion - `isNull` vs. `is
   );
 ```
 
-# --solutions--
-
-```js
-/**
-  Backend challenges don't need solutions, 
-  because they would need to be tested against a full working project. 
-  Please check our contributing guidelines to learn more.
-*/
-```

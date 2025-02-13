@@ -4,9 +4,6 @@
   "dashedName": "regular-expressions",
   "helpCategory": "JavaScript",
   "order": 2,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "javascript-algorithms-and-data-structures",
   "challengeOrder": [
     {
@@ -141,5 +138,6 @@
       "id": "587d7dbb367417b2b2512bac",
       "title": "Remove Whitespace from Start and End"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }

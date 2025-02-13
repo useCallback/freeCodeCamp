@@ -5,12 +5,14 @@ import type {
   ChallengeFile,
   ChallengeFiles,
   CompletedChallenge,
+  ExamTokenResponse,
   GenerateExamResponseWithData,
   SavedChallenge,
   SavedChallengeFile,
   SurveyResults,
   User
 } from '../redux/prop-types';
+import { DonationDuration } from '../../../shared/config/donation-settings';
 
 const { apiLocation } = envData;
 
@@ -36,7 +38,10 @@ export interface ResponseWithData<T> {
 // TODO: Might want to handle flash messages as close to the request as possible
 // to make use of the Response object (message, status, etc)
 async function get<T>(path: string): Promise<ResponseWithData<T>> {
-  const response = await fetch(`${base}${path}`, defaultOptions);
+  const response = await fetch(`${base}${path}`, {
+    ...defaultOptions,
+    headers: { 'CSRF-Token': getCSRFToken() }
+  });
 
   return combineDataWithResponse(response);
 }
@@ -55,7 +60,7 @@ export function post<T = void>(
 
 function put<T = void>(
   path: string,
-  body?: unknown
+  body: unknown
 ): Promise<ResponseWithData<T>> {
   return request('PUT', path, body);
 }
@@ -138,7 +143,6 @@ function parseApiResponseToClientUser(data: ApiUser): UserResponse {
 }
 
 // TODO: this at least needs a few aliases so it's human readable
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function mapFilesToChallengeFiles<File, Rest>(
   fileContainer: ({ files: (File & { key: string })[] } & Rest)[] = []
 ) {
@@ -239,7 +243,7 @@ export function addDonation(body: Donation): Promise<ResponseWithData<void>> {
 }
 
 export function updateStripeCard() {
-  return put('/donate/update-stripe-card');
+  return put('/donate/update-stripe-card', {});
 }
 
 export function postChargeStripe(
@@ -253,6 +257,37 @@ export function postChargeStripeCard(
 ): Promise<ResponseWithData<void>> {
   return post('/donate/charge-stripe-card', body);
 }
+
+export function generateExamToken(): Promise<
+  ResponseWithData<ExamTokenResponse>
+> {
+  return post('/user/exam-environment/token', {});
+}
+
+type PaymentIntentResponse = Promise<
+  ResponseWithData<
+    | {
+        clientSecret?: never;
+        subscriptionId?: never;
+        error: string;
+      }
+    | {
+        clientSecret: string;
+        subscriptionId: string;
+        error?: never;
+      }
+  >
+>;
+
+export function createStripePaymentIntent(body: {
+  email: string | undefined;
+  name: string | undefined;
+  amount: number;
+  duration: DonationDuration;
+}): PaymentIntentResponse {
+  return post('/donate/create-stripe-payment-intent', body);
+}
+
 interface Report {
   username: string;
   reportDescription: string;
@@ -325,12 +360,6 @@ export function putUpdateMySocials(
   update: Record<string, string>
 ): Promise<ResponseWithData<void>> {
   return put('/update-my-socials', update);
-}
-
-export function putUpdateMyTheme(
-  update: Record<string, string>
-): Promise<ResponseWithData<void>> {
-  return put('/update-my-theme', update);
 }
 
 export function putUpdateMyKeyboardShortcuts(

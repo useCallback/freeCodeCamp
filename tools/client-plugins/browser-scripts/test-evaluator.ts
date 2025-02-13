@@ -8,14 +8,19 @@ const ctx: Worker & typeof globalThis = self as unknown as Worker &
 
 const __utils = (() => {
   const MAX_LOGS_SIZE = 64 * 1024;
+  const TRUNCATE_AT = 500_000;
 
   let logs: string[] = [];
 
   function flushLogs() {
     if (logs.length) {
+      let data = logs.join('\n');
+      if (data.length > TRUNCATE_AT) {
+        data = `${data.substring(0, TRUNCATE_AT)} Logs truncated. See browser console for more`;
+      }
       ctx.postMessage({
         type: 'LOG',
-        data: logs.join('\n')
+        data: data
       });
       logs = [];
     }
@@ -87,7 +92,6 @@ interface TestEvaluatorEvent extends MessageEvent {
       editableContents: string;
       original: { [id: string]: string };
     };
-    removeComments: boolean;
     firstTest: unknown;
     testString: string;
     build: string;
@@ -100,12 +104,8 @@ interface TestEvaluatorEvent extends MessageEvent {
 /* Run the test if there is one.  If not just evaluate the user code */
 ctx.onmessage = async (e: TestEvaluatorEvent) => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  let code = (e.data?.code?.contents || '').slice();
-  code = e.data?.removeComments ? helpers.removeJSComments(code) : code;
-  let editableContents = (e.data?.code?.editableContents || '').slice();
-  editableContents = e.data?.removeComments
-    ? helpers.removeJSComments(editableContents)
-    : editableContents;
+  const code = (e.data?.code?.contents || '').slice();
+  const editableContents = (e.data?.code?.editableContents || '').slice();
 
   const assert = chai.assert;
   const __helpers = helpers;
@@ -125,15 +125,10 @@ ctx.onmessage = async (e: TestEvaluatorEvent) => {
     // This can be reassigned by the eval inside the try block, so it should be declared as a let
     // eslint-disable-next-line prefer-const
     let __userCodeWasExecuted = false;
-    /* eslint-disable no-eval */
     try {
       // Logging is proxyed after the build to catch console.log messages
       // generated during testing.
-      testResult = (await eval(`${
-        e.data?.removeComments
-          ? helpers.removeJSComments(e.data.build)
-          : e.data.build
-      }
+      testResult = (await eval(`${e.data.build}
 __utils.flushLogs();
 __userCodeWasExecuted = true;
 __utils.toggleProxyLogger(true);
@@ -156,8 +151,8 @@ ${e.data.testString}`)) as unknown;
       // the user code does not get executed.
       testResult = eval(e.data.testString) as unknown;
     }
-    /* eslint-enable no-eval */
     if (typeof testResult === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       await testResult((fileName: string) =>
         __toString(e.data.sources[fileName])
       );
@@ -175,7 +170,9 @@ ${e.data.testString}`)) as unknown;
     ctx.postMessage({
       err: {
         message: (err as Error).message,
-        stack: (err as Error).stack
+        stack: (err as Error).stack,
+        expected: (err as { expected?: string }).expected,
+        actual: (err as { actual?: string }).actual
       }
     });
   }

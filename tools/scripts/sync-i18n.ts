@@ -20,6 +20,7 @@ const loadDirectory = async (path: string): Promise<string[]> => {
 };
 
 const syncChallenges = async () => {
+  const block = process.env.FCC_BLOCK;
   const ignore = ['.markdownlint.yaml', '_meta', 'english'];
   const basePath = join(process.cwd(), 'curriculum', 'challenges');
   const allLangs = await readdir(basePath);
@@ -29,6 +30,9 @@ const syncChallenges = async () => {
   for (const path of english) {
     await Promise.all(
       filtered.map(async lang => {
+        if (block && !path.includes(block)) {
+          return;
+        }
         const targetPath = path.replace('english', lang);
         // we swallow the error here to detect if the file doesn't exist
         const status = await stat(targetPath).catch(() => null);
@@ -41,13 +45,19 @@ const syncChallenges = async () => {
           );
         }
         const englishContent = await readFile(path, 'utf-8');
+        if (path.endsWith('LICENSE.txt')) {
+          await writeFile(targetPath, englishContent, 'utf-8');
+          return;
+        }
         const langContent = await readFile(targetPath, 'utf-8');
         const engLines = englishContent.split('\n');
         const engId = engLines.find(l => l.startsWith('id'));
         const engSlug = engLines.find(l => l.startsWith('dashedName'));
         const langLines = langContent.split('\n');
         const langId = langLines.find(l => l.startsWith('id'));
-        const langSlug = langLines.find(l => l.startsWith('dashedName'));
+        const langSlug = langLines.find(
+          l => l.startsWith('dashedName') || l.startsWith('certification:')
+        );
         if (!langSlug) {
           throw new Error(
             `Missing dashedName for ${targetPath}. Please add it so that it matches the English version.`
@@ -75,6 +85,9 @@ const syncChallenges = async () => {
     const langPath = join(process.cwd(), 'curriculum', 'challenges', lang);
     const langFiles = await loadDirectory(langPath);
     for (const path of langFiles) {
+      if (block && !path.includes(block)) {
+        continue;
+      }
       const engPath = path.replace(lang, 'english');
       // we don't want an error, only need to know that the file exists
       const existsEnglish = await stat(engPath).catch(() => null);

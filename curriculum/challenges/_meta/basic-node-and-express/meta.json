@@ -4,7 +4,6 @@
   "dashedName": "basic-node-and-express",
   "helpCategory": "JavaScript",
   "order": 1,
-  "time": "5 hours",
   "superBlock": "back-end-development-and-apis",
   "challengeOrder": [
     {
@@ -55,5 +54,6 @@
       "id": "587d7fb2367417b2b2512bf8",
       "title": "Get Data from POST Requests"
     }
-  ]
+  ],
+  "blockLayout": "legacy-challenge-list"
 }
